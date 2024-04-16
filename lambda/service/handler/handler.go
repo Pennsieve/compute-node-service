@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/pennsieve/compute-node-service/service/logging"
 )
 
@@ -14,17 +15,21 @@ func init() {
 	logger.Info("init()")
 }
 
-func ComputeNodeServiceHandler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
-	logger = logger.With(slog.String("requestID", request.RequestContext.RequestID))
+func ComputeNodeServiceHandler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+	if lc, ok := lambdacontext.FromContext(ctx); ok {
+		logger = logger.With(slog.String("requestID", lc.AwsRequestID))
+	}
 
-	apiResponse, err := handleRequest()
+	logger.Info("request parameters",
+		"routeKey", request.RouteKey,
+		"pathParameters", request.PathParameters,
+		"rawPath", request.RawPath,
+		"requestContext.routeKey", request.RequestContext.RouteKey,
+		"requestContext.http.path", request.RequestContext.HTTP.Path)
 
-	return apiResponse, err
-}
+	router := NewLambdaRouter()
+	// register routes based on their supported methods
+	router.POST("/compute-nodes", PostComputeNodesHandler)
 
-func handleRequest() (*events.APIGatewayV2HTTPResponse, error) {
-	logger.Info("handleRequest()")
-	apiResponse := events.APIGatewayV2HTTPResponse{Body: "{'response':'hello'}", StatusCode: 200}
-
-	return &apiResponse, nil
+	return router.Start(ctx, request)
 }

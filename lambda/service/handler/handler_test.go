@@ -10,10 +10,19 @@ import (
 )
 
 func TestHandler(t *testing.T) {
-	resp, err := ComputeNodeServiceHandler(context.Background(), events.APIGatewayV2HTTPRequest{
-		RequestContext: events.APIGatewayV2HTTPRequestContext{RequestID: "handler-test"}})
-	if assert.NoError(t, err) {
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
-		assert.Equal(t, "{'response':'hello'}", resp.Body)
+	requestContext := events.APIGatewayV2HTTPRequestContext{
+		RequestID: "handler-test",
+		AccountID: "12345",
+		HTTP: events.APIGatewayV2HTTPRequestContextHTTPDescription{
+			Method: "POST",
+		},
 	}
+	request := events.APIGatewayV2HTTPRequest{
+		RouteKey:       "POST /unknownEndpoint",
+		RawPath:        "/unknownEndpoint",
+		RequestContext: requestContext,
+	}
+	resp, _ := ComputeNodeServiceHandler(context.Background(), request)
+	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	assert.Equal(t, ErrUnsupportedRoute.Error(), resp.Body)
 }
