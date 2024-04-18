@@ -19,3 +19,4 @@
 
 # Lambda Binaries Zip files
 lambda/bin
+.DS_Store
