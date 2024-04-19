@@ -20,3 +20,4 @@
 # Lambda Binaries Zip files
 lambda/bin
 .DS_Store
+fargate/compute-node-provisioner/env.dev

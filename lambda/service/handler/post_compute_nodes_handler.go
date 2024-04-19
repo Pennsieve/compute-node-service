@@ -44,6 +44,8 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 	client := ecs.NewFromConfig(cfg)
 	log.Println("Initiating new Provisioning Fargate Task.")
 	envKey := "ENV"
+	accountIDKey := "ACCOUNT_ID"
+	accountIdValue := account.AccountId
 
 	runTaskIn := &ecs.RunTaskInput{
 		TaskDefinition: aws.String(TaskDefinitionArn),
@@ -63,6 +65,10 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 						{
 							Name:  &envKey,
 							Value: &envValue,
+						},
+						{
+							Name:  &accountIDKey,
+							Value: &accountIdValue,
 						},
 					},
 				},
