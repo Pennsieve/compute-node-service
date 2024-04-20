@@ -26,7 +26,9 @@ func main() {
 		log.Fatalf("LoadDefaultConfig: %v\n", err)
 	}
 
-	provisioner := NewProvisioner(iam.NewFromConfig(cfg), sts.NewFromConfig(cfg), accountId)
+	provisioner := NewProvisioner(iam.NewFromConfig(cfg),
+		sts.NewFromConfig(cfg),
+		accountId)
 	provisioner.Run()
 
 	log.Println("provisioning complete")
