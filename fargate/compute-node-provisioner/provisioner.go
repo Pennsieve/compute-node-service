@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os/exec"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -15,13 +16,14 @@ import (
 )
 
 type Provisioner struct {
-	IAMClient *iam.Client
-	STSClient *sts.Client
-	AccountId string
+	IAMClient     *iam.Client
+	STSClient     *sts.Client
+	AccountId     string
+	BackendExists bool
 }
 
 func NewProvisioner(iamClient *iam.Client, stsClient *sts.Client, accountId string) *Provisioner {
-	return &Provisioner{iamClient, stsClient, accountId}
+	return &Provisioner{IAMClient: iamClient, STSClient: stsClient, AccountId: accountId}
 }
 
 func (p *Provisioner) Run() {
@@ -60,7 +62,7 @@ func (p *Provisioner) Create(c aws.Credentials) {
 	}
 	creds := credentials.NewStaticCredentialsProvider(c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
 
-	// test: list s3 buckets
+	// list s3 buckets
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.Credentials = creds
 	})
@@ -71,5 +73,22 @@ func (p *Provisioner) Create(c aws.Credentials) {
 
 	for _, b := range resp.Buckets {
 		fmt.Println(*b.Name)
+		if *b.Name == fmt.Sprintf("tfstate-%s", p.AccountId) {
+			p.BackendExists = true
+			break
+		}
 	}
+
+	if !p.BackendExists {
+		// create s3 backend
+		cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/create-backend.sh",
+			p.AccountId, c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
+		out, err := cmd.Output()
+		if err != nil {
+			log.Fatalf("error %s", err.Error())
+		}
+		output := string(out)
+		fmt.Println(output)
+	}
+
 }

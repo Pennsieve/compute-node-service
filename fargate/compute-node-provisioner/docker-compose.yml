@@ -7,7 +7,7 @@ services:
       - env.dev
     image: pennsieve/compute-node-service-provisioner
     volumes:
-      - ./terraform:/service/terraform
+      - ./terraform:/usr/src/app/terraform
       - $HOME/.aws:/root/.aws:ro
     container_name: compute-node-service-provisioner
     build:
