@@ -15,10 +15,6 @@ func main() {
 	_ = context.Background()
 
 	accountId := os.Getenv("ACCOUNT_ID")
-	// TODO: remove
-	log.Println("ENV", os.Getenv("ENV"))
-	log.Println("AWS_PROFILE", os.Getenv("AWS_PROFILE"))
-	log.Println("ACCOUNT_ID", os.Getenv("ACCOUNT_ID"))
 
 	// Initializing environment
 	cfg, err := config.LoadDefaultConfig(context.Background())

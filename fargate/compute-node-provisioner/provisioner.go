@@ -91,4 +91,14 @@ func (p *Provisioner) Create(c aws.Credentials) {
 		fmt.Println(output)
 	}
 
+	// create infrastructure
+	cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/infrastructure.sh",
+		p.AccountId, c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
+	out, err := cmd.Output()
+	if err != nil {
+		log.Fatalf("error %s", err.Error())
+	}
+	output := string(out)
+	fmt.Println(output)
+
 }
