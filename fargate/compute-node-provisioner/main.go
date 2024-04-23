@@ -15,6 +15,8 @@ func main() {
 	_ = context.Background()
 
 	accountId := os.Getenv("ACCOUNT_ID")
+	action := os.Getenv("ACTION")
+	env := os.Getenv("ENV")
 
 	// Initializing environment
 	cfg, err := config.LoadDefaultConfig(context.Background())
@@ -24,7 +26,9 @@ func main() {
 
 	provisioner := NewProvisioner(iam.NewFromConfig(cfg),
 		sts.NewFromConfig(cfg),
-		accountId)
+		accountId,
+		action,
+		env)
 	provisioner.Run()
 
 	log.Println("provisioning complete")

@@ -23,13 +23,7 @@ account_id = "$1"
 region = "${AWS_DEFAULT_REGION}"
 EOL
 
-echo "Running init and plan ..."
-export TF_LOG_PATH="error.log"
-export TF_LOG=TRACE
-terraform init -force-copy -backend-config=$BACKEND_FILE
-terraform plan -out=tfplan -var-file=$VAR_FILE
-
-echo "Running apply ..."
-terraform apply tfplan
+echo "Running destroy ..."
+terraform apply -destroy -auto-approve -var-file=$VAR_FILE
 
 echo "DONE RUNNING IN ENVIRONMENT: $ENV"

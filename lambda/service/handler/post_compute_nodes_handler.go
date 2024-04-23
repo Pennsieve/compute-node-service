@@ -46,6 +46,8 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 	envKey := "ENV"
 	accountIDKey := "ACCOUNT_ID"
 	accountIdValue := account.AccountId
+	actionKey := "ACTION"
+	actionValue := "CREATE"
 
 	runTaskIn := &ecs.RunTaskInput{
 		TaskDefinition: aws.String(TaskDefinitionArn),
@@ -69,6 +71,10 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 						{
 							Name:  &accountIDKey,
 							Value: &accountIdValue,
+						},
+						{
+							Name:  &actionKey,
+							Value: &actionValue,
 						},
 					},
 				},
