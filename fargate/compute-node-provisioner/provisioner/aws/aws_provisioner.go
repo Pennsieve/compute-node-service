@@ -32,16 +32,12 @@ func NewAWSProvisioner(iamClient *iam.Client, stsClient *sts.Client, accountId s
 
 func (p *AWSProvisioner) Run(ctx context.Context) error {
 	log.Println("Starting to provision infrastructure ...")
-	creds, err := p.assumeRole(ctx)
-	if err != nil {
-		return err
-	}
 
 	switch p.Action {
 	case "CREATE":
-		return p.create(ctx, creds)
+		return p.create(ctx)
 	case "DELETE":
-		return p.delete(creds)
+		return p.delete(ctx)
 	default:
 		return fmt.Errorf("action not supported: %s", p.Action)
 	}
@@ -67,18 +63,21 @@ func (p *AWSProvisioner) assumeRole(ctx context.Context) (aws.Credentials, error
 	return credentials, nil
 }
 
-func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) error {
+func (p *AWSProvisioner) create(ctx context.Context) error {
 	log.Println("creating infrastructure ...")
 
+	creds, err := p.assumeRole(ctx)
+	if err != nil {
+		return err
+	}
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return err
 	}
-	creds := credentials.NewStaticCredentialsProvider(c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
 
 	// check for backend bucket
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
-		o.Credentials = creds
+		o.Credentials = credentials.NewStaticCredentialsProvider(creds.AccessKeyID, creds.SecretAccessKey, creds.SessionToken)
 	})
 	resp, err := client.ListBuckets(ctx, &s3.ListBucketsInput{})
 	if err != nil {
@@ -95,7 +94,7 @@ func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) error {
 	if !p.BackendExists {
 		// create s3 backend bucket
 		cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/create-backend.sh",
-			p.AccountId, c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
+			p.AccountId, creds.AccessKeyID, creds.SecretAccessKey, creds.SessionToken)
 		out, err := cmd.Output()
 		if err != nil {
 			return err
@@ -105,7 +104,7 @@ func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) error {
 
 	// create infrastructure
 	cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/infrastructure.sh",
-		p.AccountId, c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
+		p.AccountId, creds.AccessKeyID, creds.SecretAccessKey, creds.SessionToken)
 	out, err := cmd.Output()
 	if err != nil {
 		return err
@@ -115,11 +114,15 @@ func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) error {
 	return nil
 }
 
-func (p *AWSProvisioner) delete(c aws.Credentials) error {
+func (p *AWSProvisioner) delete(ctx context.Context) error {
 	fmt.Println("destroying infrastructure")
 
+	creds, err := p.assumeRole(ctx)
+	if err != nil {
+		return err
+	}
 	cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/destroy-infrastructure.sh",
-		p.AccountId, c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
+		p.AccountId, creds.AccessKeyID, creds.SecretAccessKey, creds.SessionToken)
 	out, err := cmd.Output()
 	if err != nil {
 		return err
