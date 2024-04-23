@@ -1,4 +1,4 @@
-package main
+package provisioner
 
 import (
 	"context"
@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+	"github.com/pennsieve/compute-node-service/compute-node-provisioner/provisioner"
 )
 
 type AWSProvisioner struct {
@@ -24,7 +25,7 @@ type AWSProvisioner struct {
 	Env           string
 }
 
-func NewAWSProvisioner(iamClient *iam.Client, stsClient *sts.Client, accountId string, action string, env string) Provisioner {
+func NewAWSProvisioner(iamClient *iam.Client, stsClient *sts.Client, accountId string, action string, env string) provisioner.Provisioner {
 	return &AWSProvisioner{IAMClient: iamClient, STSClient: stsClient,
 		AccountId: accountId, Action: action, Env: env}
 }
@@ -72,7 +73,7 @@ func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) {
 	}
 	creds := credentials.NewStaticCredentialsProvider(c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
 
-	// list s3 buckets
+	// check for backend bucket
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.Credentials = creds
 	})
@@ -89,7 +90,7 @@ func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) {
 	}
 
 	if !p.BackendExists {
-		// create s3 backend
+		// create s3 backend bucket
 		cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/create-backend.sh",
 			p.AccountId, c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
 		out, err := cmd.Output()
@@ -113,9 +114,8 @@ func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) {
 }
 
 func (p *AWSProvisioner) delete(c aws.Credentials) {
-	fmt.Println("deleting infrastructure")
+	fmt.Println("destroying infrastructure")
 
-	// create infrastructure
 	cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/destroy-infrastructure.sh",
 		p.AccountId, c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
 	out, err := cmd.Output()

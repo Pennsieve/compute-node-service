@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+	aws "github.com/pennsieve/compute-node-service/compute-node-provisioner/provisioner/aws"
 )
 
 func main() {
@@ -24,7 +25,7 @@ func main() {
 		log.Fatalf("LoadDefaultConfig: %v\n", err)
 	}
 
-	provisioner := NewAWSProvisioner(iam.NewFromConfig(cfg), sts.NewFromConfig(cfg),
+	provisioner := aws.NewAWSProvisioner(iam.NewFromConfig(cfg), sts.NewFromConfig(cfg),
 		accountId, action, env)
 	provisioner.Run(ctx)
 
