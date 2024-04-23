@@ -12,7 +12,7 @@ import (
 
 func main() {
 	log.Println("Running compute node provisioner")
-	_ = context.Background()
+	ctx := context.Background()
 
 	accountId := os.Getenv("ACCOUNT_ID")
 	action := os.Getenv("ACTION")
@@ -24,12 +24,9 @@ func main() {
 		log.Fatalf("LoadDefaultConfig: %v\n", err)
 	}
 
-	provisioner := NewProvisioner(iam.NewFromConfig(cfg),
-		sts.NewFromConfig(cfg),
-		accountId,
-		action,
-		env)
-	provisioner.Run()
+	provisioner := NewAWSProvisioner(iam.NewFromConfig(cfg), sts.NewFromConfig(cfg),
+		accountId, action, env)
+	provisioner.Run(ctx)
 
 	log.Println("provisioning complete")
 }
