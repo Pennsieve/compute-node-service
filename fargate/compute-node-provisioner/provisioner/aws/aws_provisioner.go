@@ -30,46 +30,49 @@ func NewAWSProvisioner(iamClient *iam.Client, stsClient *sts.Client, accountId s
 		AccountId: accountId, Action: action, Env: env}
 }
 
-func (p *AWSProvisioner) Run(ctx context.Context) {
+func (p *AWSProvisioner) Run(ctx context.Context) error {
 	log.Println("Starting to provision infrastructure ...")
-	creds := p.assumeRole(ctx)
+	creds, err := p.assumeRole(ctx)
+	if err != nil {
+		return err
+	}
 
 	switch p.Action {
 	case "CREATE":
-		p.create(ctx, creds)
+		return p.create(ctx, creds)
 	case "DELETE":
-		p.delete(creds)
+		return p.delete(creds)
 	default:
-		log.Println("action not supported: ", p.Action)
+		return fmt.Errorf("action not supported: %s", p.Action)
 	}
 
 }
 
-func (p *AWSProvisioner) assumeRole(ctx context.Context) aws.Credentials {
+func (p *AWSProvisioner) assumeRole(ctx context.Context) (aws.Credentials, error) {
 	log.Println("assuming role ...")
 
 	deployAccountId, err := p.STSClient.GetCallerIdentity(ctx,
 		&sts.GetCallerIdentityInput{})
 	if err != nil {
-		log.Println(err)
+		return aws.Credentials{}, err
 	}
 
 	roleArn := fmt.Sprintf("arn:aws:iam::%s:role/ROLE-%s", p.AccountId, *deployAccountId.Account)
 	appCreds := stscreds.NewAssumeRoleProvider(p.STSClient, roleArn)
 	credentials, err := appCreds.Retrieve(ctx)
 	if err != nil {
-		log.Println(err)
+		return aws.Credentials{}, err
 	}
 
-	return credentials
+	return credentials, nil
 }
 
-func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) {
+func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) error {
 	log.Println("creating infrastructure ...")
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	creds := credentials.NewStaticCredentialsProvider(c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
 
@@ -79,7 +82,7 @@ func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) {
 	})
 	resp, err := client.ListBuckets(ctx, &s3.ListBucketsInput{})
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	for _, b := range resp.Buckets {
@@ -95,10 +98,9 @@ func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) {
 			p.AccountId, c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
 		out, err := cmd.Output()
 		if err != nil {
-			log.Fatalf("error %s", err.Error())
+			return err
 		}
-		output := string(out)
-		fmt.Println(output)
+		fmt.Println(string(out))
 	}
 
 	// create infrastructure
@@ -106,23 +108,23 @@ func (p *AWSProvisioner) create(ctx context.Context, c aws.Credentials) {
 		p.AccountId, c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
 	out, err := cmd.Output()
 	if err != nil {
-		log.Fatalf("error %s", err.Error())
+		return err
 	}
-	output := string(out)
-	fmt.Println(output)
+	fmt.Println(string(out))
 
+	return nil
 }
 
-func (p *AWSProvisioner) delete(c aws.Credentials) {
+func (p *AWSProvisioner) delete(c aws.Credentials) error {
 	fmt.Println("destroying infrastructure")
 
 	cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/destroy-infrastructure.sh",
 		p.AccountId, c.AccessKeyID, c.SecretAccessKey, c.SessionToken)
 	out, err := cmd.Output()
 	if err != nil {
-		log.Fatalf("error %s", err.Error())
+		return err
 	}
-	output := string(out)
-	fmt.Println(output)
+	fmt.Println(string(out))
 
+	return nil
 }

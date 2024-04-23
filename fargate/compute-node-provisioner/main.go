@@ -27,7 +27,10 @@ func main() {
 
 	provisioner := aws.NewAWSProvisioner(iam.NewFromConfig(cfg), sts.NewFromConfig(cfg),
 		accountId, action, env)
-	provisioner.Run(ctx)
+	err = provisioner.Run(ctx)
+	if err != nil {
+		log.Fatal("error running provisioner", err.Error())
+	}
 
 	log.Println("provisioning complete")
 }
