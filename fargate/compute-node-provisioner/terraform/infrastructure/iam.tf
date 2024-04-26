@@ -18,8 +18,8 @@ resource "aws_iam_role" "iam_for_lambda" {
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
-// attach policy to allow gateway lambda to start an ECS task and to write to Cloudwatch
-resource "aws_iam_role_policy_attachment" "lambda_policy_ecs" {
+//  gateway lambda policy
+resource "aws_iam_role_policy_attachment" "gateway_lambda_policy" {
   role       = aws_iam_role.iam_for_lambda.name
   policy_arn = aws_iam_policy.lambda_iam_policy.arn
 }
