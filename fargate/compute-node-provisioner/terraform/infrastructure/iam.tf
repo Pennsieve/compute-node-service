@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "iam_for_lambda" {
-  name               = "iam_for_lambda-${var.account_id}"
+  name               = "iam_for_lambda-${var.account_id}-${var.env}"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
@@ -25,7 +25,7 @@ resource "aws_iam_role_policy_attachment" "gateway_lambda_policy" {
 }
 
 resource "aws_iam_policy" "lambda_iam_policy" {
-  name   = "lambda-iam-policy-${var.account_id}"
+  name   = "lambda-iam-policy-${var.account_id}-${var.env}"
   path   = "/"
   policy = data.aws_iam_policy_document.iam_policy_document_gateway.json
 }

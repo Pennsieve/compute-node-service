@@ -20,7 +20,8 @@ EOL
 echo "Creating tfvars config"
   /bin/cat > $VAR_FILE <<EOL
 account_id = "$1"
-region = "${AWS_DEFAULT_REGION}"
+region = "$AWS_DEFAULT_REGION"
+env = "$ENV"
 EOL
 
 echo "Running init and plan ..."
