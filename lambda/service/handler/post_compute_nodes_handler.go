@@ -18,7 +18,7 @@ import (
 )
 
 func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
-	handlerName := "PostAccountsHandler"
+	handlerName := "PostComputeNodesHandler"
 	var node models.Node
 	if err := json.Unmarshal([]byte(request.Body), &node); err != nil {
 		log.Println(err.Error())

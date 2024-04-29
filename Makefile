@@ -48,6 +48,14 @@ package:
   		env GOOS=linux GOARCH=arm64 go build -tags lambda.norpc -o $(WORKING_DIR)/lambda/bin/service/bootstrap; \
 		cd $(WORKING_DIR)/lambda/bin/service/ ; \
 			zip -r $(WORKING_DIR)/lambda/bin/service/$(PACKAGE_NAME) .
+	@echo ""
+	@echo "***********************"
+	@echo "*   Building Fargate   *"
+	@echo "***********************"
+	@echo ""
+	cd $(WORKING_DIR)/fargate/compute-node-provisioner; \
+		docker build -t pennsieve/provisioner:${IMAGE_TAG} . ;\
+		docker push pennsieve/provisioner:${IMAGE_TAG} ;\		
 
 # Copy Service lambda to S3 location
 publish:
