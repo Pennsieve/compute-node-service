@@ -3,7 +3,6 @@ package parser
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
@@ -24,9 +23,8 @@ func (o *OutputParser) Run(ctx context.Context) (Output, error) {
 	if err != nil {
 		return Output{}, err
 	}
-	fmt.Println(string(data))
-	var outputs Output
 
+	var outputs Output
 	err = json.Unmarshal(data, &outputs)
 	if err != nil {
 		return Output{}, err
