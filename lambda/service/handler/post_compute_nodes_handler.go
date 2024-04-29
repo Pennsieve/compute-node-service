@@ -19,8 +19,8 @@ import (
 
 func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	handlerName := "PostAccountsHandler"
-	var account models.Account
-	if err := json.Unmarshal([]byte(request.Body), &account); err != nil {
+	var node models.Node
+	if err := json.Unmarshal([]byte(request.Body), &node); err != nil {
 		log.Println(err.Error())
 		return events.APIGatewayV2HTTPResponse{
 			StatusCode: http.StatusInternalServerError,
@@ -45,7 +45,7 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 	log.Println("Initiating new Provisioning Fargate Task.")
 	envKey := "ENV"
 	accountIDKey := "ACCOUNT_ID"
-	accountIdValue := account.AccountId
+	accountIdValue := node.AccountId
 	actionKey := "ACTION"
 	actionValue := "CREATE"
 

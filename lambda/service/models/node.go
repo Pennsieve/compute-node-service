@@ -1,5 +1,5 @@
 package models
 
-type Account struct {
+type Node struct {
 	AccountId string `json:"accountId"`
 }

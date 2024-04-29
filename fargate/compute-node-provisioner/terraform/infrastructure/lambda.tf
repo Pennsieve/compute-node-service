@@ -16,6 +16,7 @@ resource "aws_lambda_function" "compute_gateway" {
   environment {
     variables = {
       REGION = var.region
+      SQS_URL = aws_sqs_queue.workflow_queue.id
     }
   }
 }

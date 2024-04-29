@@ -21,6 +21,10 @@ echo "Creating tfvars config"
   /bin/cat > $VAR_FILE <<EOL
 account_id = "$1"
 region = "${AWS_DEFAULT_REGION}"
+env = "$ENV"
+wm_cpu = "${WM_CPU:-2048}"
+wm_memory = "${WM_MEMORY:-4096}"
+az = ["a", "b", "c", "d", "e", "f"]
 EOL
 
 
