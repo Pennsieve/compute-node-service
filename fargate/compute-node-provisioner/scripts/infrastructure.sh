@@ -6,6 +6,7 @@ TERRAFORM_DIR="/usr/src/app/terraform/infrastructure"
 cd $TERRAFORM_DIR
 VAR_FILE="$TERRAFORM_DIR/node.tfvars"
 BACKEND_FILE="$TERRAFORM_DIR/node.tfbackend"
+OUTPUT_FILE="$TERRAFORM_DIR/outputs.json"
 
 export AWS_ACCESS_KEY_ID=$2
 export AWS_SECRET_ACCESS_KEY=$3
@@ -35,5 +36,6 @@ terraform plan -out=tfplan -var-file=$VAR_FILE
 
 echo "Running apply ..."
 terraform apply tfplan
+terraform output -json > $OUTPUT_FILE
 
 echo "DONE RUNNING IN ENVIRONMENT: $ENV"
