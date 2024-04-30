@@ -1,0 +1,22 @@
+{
+  "compute_gateway_url": {
+    "sensitive": false,
+    "type": "string",
+    "value": "https://some-gateway-url.aws/"
+  },
+  "efs_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "fs-some-efs-id"
+  },
+  "sqs_url": {
+    "sensitive": false,
+    "type": "string",
+    "value": "https://sqs.region.amazonaws.com/some-sql-url"
+  },
+  "workflow_manager_ecr_repository": {
+    "sensitive": false,
+    "type": "string",
+    "value": "some-account-url/workflow-manager"
+  }
+}

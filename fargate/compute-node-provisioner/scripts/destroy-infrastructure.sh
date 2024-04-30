@@ -21,10 +21,14 @@ echo "Creating tfvars config"
   /bin/cat > $VAR_FILE <<EOL
 account_id = "$1"
 region = "${AWS_DEFAULT_REGION}"
+env = "$ENV"
+wm_cpu = "${WM_CPU:-2048}"
+wm_memory = "${WM_MEMORY:-4096}"
+az = ["a", "b", "c", "d", "e", "f"]
 EOL
 
 
-echo "Running init and plan ..."
+echo "Running init and destroy ..."
 export TF_LOG_PATH="error.log"
 export TF_LOG=TRACE
 terraform init -force-copy -backend-config=$BACKEND_FILE
