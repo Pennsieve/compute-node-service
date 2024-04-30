@@ -47,13 +47,13 @@ func (p *AWSProvisioner) Run(ctx context.Context) error {
 func (p *AWSProvisioner) assumeRole(ctx context.Context) (aws.Credentials, error) {
 	log.Println("assuming role ...")
 
-	deployAccountId, err := p.STSClient.GetCallerIdentity(ctx,
+	provisionerAccountId, err := p.STSClient.GetCallerIdentity(ctx,
 		&sts.GetCallerIdentityInput{})
 	if err != nil {
 		return aws.Credentials{}, err
 	}
 
-	roleArn := fmt.Sprintf("arn:aws:iam::%s:role/ROLE-%s", p.AccountId, *deployAccountId.Account)
+	roleArn := fmt.Sprintf("arn:aws:iam::%s:role/ROLE-%s", p.AccountId, *provisionerAccountId.Account)
 	appCreds := stscreds.NewAssumeRoleProvider(p.STSClient, roleArn)
 	credentials, err := appCreds.Retrieve(ctx)
 	if err != nil {

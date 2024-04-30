@@ -28,7 +28,7 @@ az = ["a", "b", "c", "d", "e", "f"]
 EOL
 
 
-echo "Running init and plan ..."
+echo "Running init and destroy ..."
 export TF_LOG_PATH="error.log"
 export TF_LOG=TRACE
 terraform init -force-copy -backend-config=$BACKEND_FILE

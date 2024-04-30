@@ -11,6 +11,9 @@ type Node struct {
 	EfsId                 string `dynamodbav:"efsId"`
 	SqsUrl                string `dynamodbav:"sqsUrl"`
 	WorkflowManagerEcrUrl string `dynamodbav:"workflowManagerUrl"`
+	Env                   string `dynamodbav:"environment"`
+	AccountId             string `dynamodbav:"accountId"`
+	AccountType           string `dynamodbav:"accountType"`
 }
 
 func (i Node) GetKey() map[string]types.AttributeValue {

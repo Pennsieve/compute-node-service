@@ -1,5 +1,10 @@
 package models
 
 type Node struct {
-	AccountId string `json:"accountId"`
+	Account Account `json:"account"`
+}
+
+type Account struct {
+	AccountId   string `json:"accountId"`
+	AccountType string `json:"accountType"`
 }

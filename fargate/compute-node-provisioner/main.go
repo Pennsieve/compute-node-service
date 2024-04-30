@@ -20,6 +20,7 @@ func main() {
 	ctx := context.Background()
 
 	accountId := os.Getenv("ACCOUNT_ID")
+	accountType := os.Getenv("ACCOUNT_TYPE")
 	action := os.Getenv("ACTION")
 	env := os.Getenv("ENV")
 	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
@@ -54,6 +55,9 @@ func main() {
 		EfsId:                 outputs.EfsId.Value,
 		SqsUrl:                outputs.SqsUrl.Value,
 		WorkflowManagerEcrUrl: outputs.WorkflowManagerEcrUrl.Value,
+		Env:                   env,
+		AccountId:             accountId,
+		AccountType:           accountType,
 	}
 	err = computeNodesStore.Insert(ctx, store_nodes)
 	if err != nil {

@@ -45,7 +45,9 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 	log.Println("Initiating new Provisioning Fargate Task.")
 	envKey := "ENV"
 	accountIDKey := "ACCOUNT_ID"
-	accountIdValue := node.AccountId
+	accountIdValue := node.Account.AccountId
+	accountTypeKey := "ACCOUNT_TYPE"
+	accountTypeValue := node.Account.AccountType
 	actionKey := "ACTION"
 	actionValue := "CREATE"
 
@@ -71,6 +73,10 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 						{
 							Name:  &accountIDKey,
 							Value: &accountIdValue,
+						},
+						{
+							Name:  &accountTypeKey,
+							Value: &accountTypeValue,
 						},
 						{
 							Name:  &actionKey,
