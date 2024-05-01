@@ -1,6 +1,5 @@
 resource "aws_lambda_function" "service_lambda" {
-  # TODO update description
-  description   = "Template for building a Lambda Function which handles requests for a new serverless Service"
+  description   = "Compute Node Service"
   function_name = "${var.environment_name}-${var.service_name}-service-lambda-${data.terraform_remote_state.region.outputs.aws_region_shortname}"
   handler       = "bootstrap"
   runtime       = "provided.al2"
@@ -21,6 +20,12 @@ resource "aws_lambda_function" "service_lambda" {
       ENV              = var.environment_name
       PENNSIEVE_DOMAIN = data.terraform_remote_state.account.outputs.domain_name,
       REGION           = var.aws_region
+      TASK_DEF_ARN = aws_ecs_task_definition.provisioner_ecs_task_definition.arn,
+      CLUSTER_ARN = data.terraform_remote_state.fargate.outputs.ecs_cluster_arn,
+      SUBNET_IDS = join(",", data.terraform_remote_state.vpc.outputs.private_subnet_ids),
+      SECURITY_GROUP = data.terraform_remote_state.platform_infrastructure.outputs.provisioner_fargate_security_group_id,
+      LOG_LEVEL = "info",
+      TASK_DEF_CONTAINER_NAME = var.tier,
     }
   }
 }

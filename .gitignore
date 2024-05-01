@@ -19,3 +19,22 @@
 
 # Lambda Binaries Zip files
 lambda/bin
+.DS_Store
+fargate/compute-node-provisioner/env.dev
+fargate/compute-node-provisioner/terraform/s3-backend/.terraform.lock.hcl
+fargate/compute-node-provisioner/terraform/s3-backend/error.log
+fargate/compute-node-provisioner/terraform/s3-backend/s3backend.tfvars
+fargate/compute-node-provisioner/terraform/s3-backend/terraform.tfstate
+fargate/compute-node-provisioner/terraform/s3-backend/tfplan
+fargate/compute-node-provisioner/terraform/s3-backend/.terraform/providers/registry.terraform.io/hashicorp/aws/5.46.0/linux_arm64/terraform-provider-aws_v5.46.0_x5
+fargate/compute-node-provisioner/terraform/infrastructure/.terraform.lock.hcl
+fargate/compute-node-provisioner/terraform/infrastructure/error.log
+fargate/compute-node-provisioner/terraform/infrastructure/node.tfbackend
+fargate/compute-node-provisioner/terraform/infrastructure/node.tfvars
+fargate/compute-node-provisioner/terraform/infrastructure/.terraform/terraform.tfstate
+fargate/compute-node-provisioner/terraform/infrastructure/.terraform/providers/registry.terraform.io/hashicorp/archive/2.4.2/linux_arm64/terraform-provider-archive_v2.4.2_x5
+fargate/compute-node-provisioner/terraform/infrastructure/.terraform/providers/registry.terraform.io/hashicorp/aws/5.46.0/linux_arm64/terraform-provider-aws_v5.46.0_x5
+fargate/compute-node-provisioner/terraform/infrastructure/compute-gateway-lambda.zip
+fargate/compute-node-provisioner/terraform/infrastructure/tfplan
+fargate/compute-node-provisioner/terraform/infrastructure/.terraform/providers/registry.terraform.io/hashicorp/aws/5.47.0/linux_arm64/terraform-provider-aws_v5.47.0_x5
+fargate/compute-node-provisioner/terraform/infrastructure/outputs.json
