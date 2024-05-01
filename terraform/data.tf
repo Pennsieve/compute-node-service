@@ -47,3 +47,19 @@ data "terraform_remote_state" "platform_infrastructure" {
     profile = var.aws_account
   }
 }
+
+# Import AWS Default SecretsManager KMS Key
+data "aws_kms_key" "ssm_kms_key" {
+  key_id = "alias/aws/secretsmanager"
+}
+
+# IMPORT FARGATE CLUSTER DATA
+data "terraform_remote_state" "fargate" {
+  backend = "s3"
+
+  config = {
+    bucket = "${var.aws_account}-terraform-state"
+    key    = "aws/${data.aws_region.current_region.name}/${var.vpc_name}/${var.environment_name}/fargate/terraform.tfstate"
+    region = "us-east-1"
+  }
+}

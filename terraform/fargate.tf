@@ -1,5 +1,5 @@
 # Render Task Definition JSON
-data "template_file" "provisioner_task_definition" {
+data "template_file" "provisioner_ecs_task_definition" {
   template = file("${path.module}/task_definition.json.tpl")
 
   vars = {
@@ -28,5 +28,5 @@ resource "aws_ecs_task_definition" "provisioner_ecs_task_definition" {
   task_role_arn      = aws_iam_role.provisioner_fargate_task_iam_role.arn
   execution_role_arn = aws_iam_role.provisioner_fargate_task_iam_role.arn
 
-  depends_on = [data.template_file.provisioner_task_definition]
+  depends_on = [data.template_file.provisioner_ecs_task_definition]
 }
