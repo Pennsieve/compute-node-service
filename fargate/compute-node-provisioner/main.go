@@ -47,10 +47,10 @@ func main() {
 	dynamoDBClient := dynamodb.NewFromConfig(cfg)
 	computeNodesStore := store_dynamodb.NewNodeDatabaseStore(dynamoDBClient, computeNodesTable)
 	id := uuid.New()
-	registeredAccountId := id.String()
+	computeNodeId := id.String()
 	// persist to dynamodb
 	store_nodes := store_dynamodb.Node{
-		Uuid:                  registeredAccountId,
+		Uuid:                  computeNodeId,
 		ComputeNodeGatewayUrl: outputs.ComputeNodeGatewayUrl.Value,
 		EfsId:                 outputs.EfsId.Value,
 		SqsUrl:                outputs.SqsUrl.Value,

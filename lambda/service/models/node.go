@@ -1,7 +1,13 @@
 package models
 
 type Node struct {
-	Account Account `json:"account"`
+	Uuid                  string  `json:"uuid"`
+	ComputeNodeGatewayUrl string  `json:"computeNodeGatewayUrl"`
+	EfsId                 string  `json:"efsId"`
+	SqsUrl                string  `json:"sqsUrl"`
+	WorkflowManagerEcrUrl string  `json:"workflowManagerUrl"`
+	Env                   string  `json:"environment"`
+	Account               Account `json:"account"`
 }
 
 type Account struct {

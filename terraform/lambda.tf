@@ -26,6 +26,7 @@ resource "aws_lambda_function" "service_lambda" {
       SECURITY_GROUP = data.terraform_remote_state.platform_infrastructure.outputs.compute_node_fargate_security_group_id,
       LOG_LEVEL = "info",
       TASK_DEF_CONTAINER_NAME = var.tier,
+      COMPUTE_NODES_TABLE = aws_dynamodb_table.compute_nodes_table.name
     }
   }
 }

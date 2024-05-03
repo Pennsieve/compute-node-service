@@ -9,6 +9,8 @@ var ErrUnmarshaling = errors.New("error unmarshaling body")
 var ErrUnsupportedPath = errors.New("unsupported path")
 var ErrUnsupportedRoute = errors.New("unsupported route")
 var ErrRunningFargateTask = errors.New("error running Rehydrate fargate task")
+var ErrConfig = errors.New("error loading AWS config")
+var ErrNoRecordsFound = errors.New("error no records found")
 
 func handlerError(handlerName string, handlerError error) string {
 	return fmt.Sprintf("%s: %s", handlerName, handlerError.Error())

@@ -38,7 +38,11 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-		log.Fatalf("LoadDefaultConfig: %v\n", err)
+		log.Println(err.Error())
+		return events.APIGatewayV2HTTPResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body:       handlerError(handlerName, ErrConfig),
+		}, nil
 	}
 
 	client := ecs.NewFromConfig(cfg)
@@ -50,6 +54,8 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 	accountTypeValue := node.Account.AccountType
 	actionKey := "ACTION"
 	actionValue := "CREATE"
+	tableKey := "COMPUTE_NODES_TABLE"
+	tableValue := os.Getenv("COMPUTE_NODES_TABLE")
 
 	runTaskIn := &ecs.RunTaskInput{
 		TaskDefinition: aws.String(TaskDefinitionArn),
@@ -81,6 +87,10 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 						{
 							Name:  &actionKey,
 							Value: &actionValue,
+						},
+						{
+							Name:  &tableKey,
+							Value: &tableValue,
 						},
 					},
 				},
