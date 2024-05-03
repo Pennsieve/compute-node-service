@@ -55,7 +55,9 @@ package:
 	@echo ""
 	cd $(WORKING_DIR)/fargate/compute-node-provisioner; \
 		docker build -t pennsieve/provisioner:${IMAGE_TAG} . ;\
-		docker push pennsieve/provisioner:${IMAGE_TAG} ;\		
+		docker push pennsieve/provisioner:${IMAGE_TAG} ;\
+
+	@echo "Done"		
 
 # Copy Service lambda to S3 location
 publish:
@@ -65,7 +67,10 @@ publish:
 	@echo "*   Publishing lambda   *"
 	@echo "*************************"
 	@echo ""
-	aws s3 cp $(WORKING_DIR)/lambda/bin/service/$(PACKAGE_NAME) s3://$(LAMBDA_BUCKET)/$(SERVICE_NAME)/
+	@echo "starting cp"
+	ls $(WORKING_DIR)/lambda/bin/service/
+	# aws s3 cp $(WORKING_DIR)/lambda/bin/service/$(PACKAGE_NAME) s3://$(LAMBDA_BUCKET)/$(SERVICE_NAME)/
+	@echo "done cp"
 	rm -rf $(WORKING_DIR)/lambda/bin/service/$(PACKAGE_NAME) $(WORKING_DIR)/lambda/bin/service/bootstrap
 
 # Run go mod tidy on modules
