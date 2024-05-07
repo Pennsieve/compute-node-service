@@ -10,7 +10,7 @@ data "archive_file" "compute_gateway_lambda" {
 resource "aws_s3_object" "compute_gateway_lambda" {
   bucket = aws_s3_bucket.lambda_bucket.id
 
-  key    = "compute-gateway-lambda.zip"
+  key    = "compute-gateway-lambda-${var.account_id}-${var.env}.zip"
   source = data.archive_file.compute_gateway_lambda.output_path
 
   etag = filemd5(data.archive_file.compute_gateway_lambda.output_path)
