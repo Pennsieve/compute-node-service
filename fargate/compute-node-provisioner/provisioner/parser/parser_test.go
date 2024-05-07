@@ -13,6 +13,6 @@ func TestOutputParser(t *testing.T) {
 	outputs, _ := parser.Run(context.Background())
 	assert.Equal(t, "https://some-gateway-url.aws/", outputs.ComputeNodeGatewayUrl.Value)
 	assert.Equal(t, "fs-some-efs-id", outputs.EfsId.Value)
-	assert.Equal(t, "https://sqs.region.amazonaws.com/some-sql-url", outputs.SqsUrl.Value)
+	assert.Equal(t, "https://sqs.region.amazonaws.com/some-sql-url", outputs.QueueUrl.Value)
 	assert.Equal(t, "some-account-url/workflow-manager", outputs.WorkflowManagerEcrUrl.Value)
 }

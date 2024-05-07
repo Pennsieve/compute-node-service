@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -10,41 +9,18 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/pennsieve/compute-node-service/service/models"
 	"github.com/pennsieve/compute-node-service/service/runner"
+	"github.com/pennsieve/compute-node-service/service/store_dynamodb"
 	"github.com/pennsieve/pennsieve-go-core/pkg/authorizer"
 )
 
-func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
-	handlerName := "PostComputeNodesHandler"
-	var node models.Node
-	if err := json.Unmarshal([]byte(request.Body), &node); err != nil {
-		log.Println(err.Error())
-		return events.APIGatewayV2HTTPResponse{
-			StatusCode: http.StatusInternalServerError,
-			Body:       handlerError(handlerName, ErrUnmarshaling),
-		}, nil
-	}
-
-	envValue := os.Getenv("ENV")
-	if node.Env != "" {
-		envValue = node.Env
-	}
-
-	TaskDefinitionArn := os.Getenv("TASK_DEF_ARN")
-	subIdStr := os.Getenv("SUBNET_IDS")
-	SubNetIds := strings.Split(subIdStr, ",")
-	cluster := os.Getenv("CLUSTER_ARN")
-	SecurityGroup := os.Getenv("SECURITY_GROUP")
-
-	TaskDefContainerName := os.Getenv("TASK_DEF_CONTAINER_NAME")
-
-	claims := authorizer.ParseClaims(request.RequestContext.Authorizer.Lambda)
-	organizationId := claims.OrgClaim.NodeId
-	userId := claims.UserClaim.NodeId
+func DeleteComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+	handlerName := "DeleteComputeNodeHandler"
+	uuid := request.PathParameters["id"]
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
@@ -55,23 +31,49 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 		}, nil
 	}
 
+	TaskDefinitionArn := os.Getenv("TASK_DEF_ARN")
+	subIdStr := os.Getenv("SUBNET_IDS")
+	SubNetIds := strings.Split(subIdStr, ",")
+	cluster := os.Getenv("CLUSTER_ARN")
+	SecurityGroup := os.Getenv("SECURITY_GROUP")
+	envValue := os.Getenv("ENV")
+	TaskDefContainerName := os.Getenv("TASK_DEF_CONTAINER_NAME")
+
+	claims := authorizer.ParseClaims(request.RequestContext.Authorizer.Lambda)
+	organizationId := claims.OrgClaim.NodeId
+	userId := claims.UserClaim.NodeId
+
+	dynamoDBClient := dynamodb.NewFromConfig(cfg)
+	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
+
+	dynamo_store := store_dynamodb.NewNodeDatabaseStore(dynamoDBClient, computeNodesTable)
+	computeNode, err := dynamo_store.GetById(ctx, uuid)
+	if err != nil {
+		log.Println(err.Error())
+		return events.APIGatewayV2HTTPResponse{
+			StatusCode: http.StatusNotFound,
+			Body:       handlerError(handlerName, ErrNoRecordsFound),
+		}, nil
+	}
+
 	client := ecs.NewFromConfig(cfg)
 	log.Println("Initiating new Provisioning Fargate Task.")
+	computeNodeIdKey := "COMPUTE_NODE_ID"
 	envKey := "ENV"
-	accountIdKey := "ACCOUNT_ID"
-	accountIdValue := node.Account.AccountId
-	accountTypeKey := "ACCOUNT_TYPE"
-	accountTypeValue := node.Account.AccountType
-	accountUuidKey := "UUID"
-	accountUuidValue := node.Account.Uuid
 	organizationIdKey := "ORG_ID"
 	organizationIdValue := organizationId
 	userIdKey := "USER_ID"
 	userIdValue := userId
 	actionKey := "ACTION"
-	actionValue := "CREATE"
+	actionValue := "DELETE"
 	tableKey := "COMPUTE_NODES_TABLE"
-	tableValue := os.Getenv("COMPUTE_NODES_TABLE")
+	tableValue := computeNodesTable
+	accountIdKey := "ACCOUNT_ID"
+	accountIdValue := computeNode.AccountId
+	accountTypeKey := "ACCOUNT_TYPE"
+	accountTypeValue := computeNode.AccountType
+	accountUuidKey := "UUID"
+	accountUuidValue := computeNode.AccountUuid
 
 	runTaskIn := &ecs.RunTaskInput{
 		TaskDefinition: aws.String(TaskDefinitionArn),
@@ -89,20 +91,12 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 					Name: &TaskDefContainerName,
 					Environment: []types.KeyValuePair{
 						{
+							Name:  &computeNodeIdKey,
+							Value: &uuid,
+						},
+						{
 							Name:  &envKey,
 							Value: &envValue,
-						},
-						{
-							Name:  &accountIdKey,
-							Value: &accountIdValue,
-						},
-						{
-							Name:  &accountUuidKey,
-							Value: &accountUuidValue,
-						},
-						{
-							Name:  &accountTypeKey,
-							Value: &accountTypeValue,
 						},
 						{
 							Name:  &actionKey,
@@ -119,6 +113,18 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 						{
 							Name:  &userIdKey,
 							Value: &userIdValue,
+						},
+						{
+							Name:  &accountIdKey,
+							Value: &accountIdValue,
+						},
+						{
+							Name:  &accountUuidKey,
+							Value: &accountUuidValue,
+						},
+						{
+							Name:  &accountTypeKey,
+							Value: &accountTypeValue,
 						},
 					},
 				},
@@ -138,6 +144,6 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 
 	return events.APIGatewayV2HTTPResponse{
 		StatusCode: http.StatusAccepted,
-		Body:       string("Compute node creation initiated"),
+		Body:       string("Compute node deletion initiated"),
 	}, nil
 }

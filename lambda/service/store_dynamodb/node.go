@@ -15,13 +15,9 @@ type Node struct {
 	AccountUuid           string `dynamodbav:"accountUuid"`
 	AccountId             string `dynamodbav:"accountId"`
 	AccountType           string `dynamodbav:"accountType"`
+	CreatedAt             string `dynamodbav:"createdAt"`
 	OrganizationId        string `dynamodbav:"organizationId"`
 	UserId                string `dynamodbav:"userId"`
-	CreatedAt             string `dynamodbav:"createdAt"`
-}
-
-type DeleteNode struct {
-	Uuid string `dynamodbav:"uuid"`
 }
 
 func (i Node) GetKey() map[string]types.AttributeValue {
