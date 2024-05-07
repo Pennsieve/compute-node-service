@@ -10,13 +10,13 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/pennsieve/compute-node-service/service/models"
+	"github.com/pennsieve/compute-node-service/service/mappers"
 	"github.com/pennsieve/compute-node-service/service/store_dynamodb"
+	"github.com/pennsieve/pennsieve-go-core/pkg/authorizer"
 )
 
-func GetComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
-	handlerName := "GetComputeNodeHandler"
-	uuid := request.PathParameters["id"]
+func GetComputesNodesHandler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+	handlerName := "GetComputesNodesHandler"
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
@@ -29,32 +29,20 @@ func GetComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HTTPR
 	dynamoDBClient := dynamodb.NewFromConfig(cfg)
 	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
 
+	claims := authorizer.ParseClaims(request.RequestContext.Authorizer.Lambda)
+	organizationId := claims.OrgClaim.NodeId
+
 	dynamo_store := store_dynamodb.NewNodeDatabaseStore(dynamoDBClient, computeNodesTable)
-	computeNode, err := dynamo_store.GetById(ctx, uuid)
+	dynamoNodes, err := dynamo_store.Get(ctx, organizationId)
 	if err != nil {
 		log.Println(err.Error())
 		return events.APIGatewayV2HTTPResponse{
-			StatusCode: http.StatusNotFound,
-			Body:       handlerError(handlerName, ErrNoRecordsFound),
+			StatusCode: http.StatusInternalServerError,
+			Body:       handlerError(handlerName, ErrDynamoDB),
 		}, nil
 	}
 
-	m, err := json.Marshal(models.Node{
-		Uuid:                  computeNode.Uuid,
-		ComputeNodeGatewayUrl: computeNode.ComputeNodeGatewayUrl,
-		EfsId:                 computeNode.EfsId,
-		QueueUrl:              computeNode.QueueUrl,
-		WorkflowManagerEcrUrl: computeNode.WorkflowManagerEcrUrl,
-		Env:                   computeNode.Env,
-		Account: models.Account{
-			Uuid:        computeNode.AccountUuid,
-			AccountId:   computeNode.AccountId,
-			AccountType: computeNode.AccountType,
-		},
-		CreatedAt:      computeNode.CreatedAt,
-		OrganizationId: computeNode.OrganizationId,
-		UserId:         computeNode.UserId,
-	})
+	m, err := json.Marshal(mappers.DynamoDBNodeToJsonNode(dynamoNodes))
 	if err != nil {
 		log.Println(err.Error())
 		return events.APIGatewayV2HTTPResponse{

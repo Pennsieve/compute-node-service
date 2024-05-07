@@ -7,6 +7,6 @@ type OutputValue struct {
 type Output struct {
 	ComputeNodeGatewayUrl OutputValue `json:"compute_gateway_url"`
 	EfsId                 OutputValue `json:"efs_id"`
-	SqsUrl                OutputValue `json:"sqs_url"`
+	QueueUrl              OutputValue `json:"queue_url"`
 	WorkflowManagerEcrUrl OutputValue `json:"workflow_manager_ecr_repository"`
 }

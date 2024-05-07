@@ -9,7 +9,7 @@
     "type": "string",
     "value": "fs-some-efs-id"
   },
-  "sqs_url": {
+  "queue_url": {
     "sensitive": false,
     "type": "string",
     "value": "https://sqs.region.amazonaws.com/some-sql-url"

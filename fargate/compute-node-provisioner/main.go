@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -19,11 +20,15 @@ func main() {
 	log.Println("Running compute node provisioner")
 	ctx := context.Background()
 
+	accountUuid := os.Getenv("ACCOUNT_UUID")
 	accountId := os.Getenv("ACCOUNT_ID")
 	accountType := os.Getenv("ACCOUNT_TYPE")
+	organizationId := os.Getenv("ORG_ID")
+	userId := os.Getenv("USER_ID")
 	action := os.Getenv("ACTION")
 	env := os.Getenv("ENV")
 	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
+	computeNodeId := os.Getenv("COMPUTE_NODE_ID")
 
 	// Initializing environment
 	cfg, err := config.LoadDefaultConfig(context.Background())
@@ -44,24 +49,58 @@ func main() {
 		log.Fatal("error running output parser", err.Error())
 	}
 
-	dynamoDBClient := dynamodb.NewFromConfig(cfg)
-	computeNodesStore := store_dynamodb.NewNodeDatabaseStore(dynamoDBClient, computeNodesTable)
-	id := uuid.New()
-	computeNodeId := id.String()
-	// persist to dynamodb
-	store_nodes := store_dynamodb.Node{
-		Uuid:                  computeNodeId,
-		ComputeNodeGatewayUrl: outputs.ComputeNodeGatewayUrl.Value,
-		EfsId:                 outputs.EfsId.Value,
-		SqsUrl:                outputs.SqsUrl.Value,
-		WorkflowManagerEcrUrl: outputs.WorkflowManagerEcrUrl.Value,
-		Env:                   env,
-		AccountId:             accountId,
-		AccountType:           accountType,
-	}
-	err = computeNodesStore.Insert(ctx, store_nodes)
-	if err != nil {
-		log.Fatal(err.Error())
+	// Database actions
+	switch action {
+	case "CREATE":
+		// persist to dynamodb
+		dynamoDBClient := dynamodb.NewFromConfig(cfg)
+		computeNodesStore := store_dynamodb.NewNodeDatabaseStore(dynamoDBClient, computeNodesTable)
+
+		nodes, err := computeNodesStore.Get(ctx, accountUuid, env)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		if len(nodes) > 1 {
+			log.Fatal("expected only one compute node entry")
+		}
+		if len(nodes) == 1 {
+			log.Fatalf("compute node with account uuid: %s, env: %s already exists",
+				nodes[0].AccountUuid, nodes[0].Env)
+
+		}
+
+		id := uuid.New()
+		computeNodeId := id.String()
+		store_nodes := store_dynamodb.Node{
+			Uuid:                  computeNodeId,
+			ComputeNodeGatewayUrl: outputs.ComputeNodeGatewayUrl.Value,
+			EfsId:                 outputs.EfsId.Value,
+			QueueUrl:              outputs.QueueUrl.Value,
+			WorkflowManagerEcrUrl: outputs.WorkflowManagerEcrUrl.Value,
+			Env:                   env,
+			AccountUuid:           accountUuid,
+			AccountId:             accountId,
+			AccountType:           accountType,
+			OrganizationId:        organizationId,
+			UserId:                userId,
+			CreatedAt:             time.Now().UTC().String(),
+		}
+		err = computeNodesStore.Insert(ctx, store_nodes)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	case "DELETE":
+		log.Println("Deleting", computeNodeId)
+		dynamoDBClient := dynamodb.NewFromConfig(cfg)
+		computeNodesStore := store_dynamodb.NewNodeDatabaseStore(dynamoDBClient, computeNodesTable)
+
+		err = computeNodesStore.Delete(ctx, computeNodeId)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+	default:
+		log.Fatalf("action not supported: %s", action)
 	}
 
 	log.Println("provisioning complete")

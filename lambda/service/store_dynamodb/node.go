@@ -9,11 +9,15 @@ type Node struct {
 	Uuid                  string `dynamodbav:"uuid"`
 	ComputeNodeGatewayUrl string `dynamodbav:"computeNodeGatewayUrl"`
 	EfsId                 string `dynamodbav:"efsId"`
-	SqsUrl                string `dynamodbav:"sqsUrl"`
+	QueueUrl              string `dynamodbav:"queueUrl"`
 	WorkflowManagerEcrUrl string `dynamodbav:"workflowManagerUrl"`
 	Env                   string `dynamodbav:"environment"`
+	AccountUuid           string `dynamodbav:"accountUuid"`
 	AccountId             string `dynamodbav:"accountId"`
 	AccountType           string `dynamodbav:"accountType"`
+	CreatedAt             string `dynamodbav:"createdAt"`
+	OrganizationId        string `dynamodbav:"organizationId"`
+	UserId                string `dynamodbav:"userId"`
 }
 
 func (i Node) GetKey() map[string]types.AttributeValue {

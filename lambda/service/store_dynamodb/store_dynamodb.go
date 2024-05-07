@@ -24,28 +24,28 @@ func NewNodeDatabaseStore(db *dynamodb.Client, tableName string) DynamoDBStore {
 	return &NodeDatabaseStore{db, tableName}
 }
 func (r *NodeDatabaseStore) GetById(ctx context.Context, uuid string) (Node, error) {
-	account := Node{Uuid: uuid}
+	node := Node{Uuid: uuid}
 	response, err := r.DB.GetItem(ctx, &dynamodb.GetItemInput{
-		Key: account.GetKey(), TableName: aws.String(r.TableName),
+		Key: node.GetKey(), TableName: aws.String(r.TableName),
 	})
 	if err != nil {
-		return account, fmt.Errorf("error getting account: %w", err)
+		return node, fmt.Errorf("error getting node: %w", err)
 	}
 
-	err = attributevalue.UnmarshalMap(response.Item, &account)
+	err = attributevalue.UnmarshalMap(response.Item, &node)
 	if err != nil {
-		return account, fmt.Errorf("error unmarshaling account: %w", err)
+		return node, fmt.Errorf("error unmarshaling node: %w", err)
 	}
 
-	return account, nil
+	return node, nil
 }
 
 func (r *NodeDatabaseStore) Get(ctx context.Context, filter string) ([]Node, error) {
-	accounts := []Node{}
+	nodes := []Node{}
 	filt := expression.Name("organizationId").Equal((expression.Value(filter)))
 	expr, err := expression.NewBuilder().WithFilter(filt).Build()
 	if err != nil {
-		return accounts, fmt.Errorf("error building expression: %w", err)
+		return nodes, fmt.Errorf("error building expression: %w", err)
 	}
 
 	response, err := r.DB.Scan(ctx, &dynamodb.ScanInput{
@@ -56,13 +56,13 @@ func (r *NodeDatabaseStore) Get(ctx context.Context, filter string) ([]Node, err
 		TableName:                 aws.String(r.TableName),
 	})
 	if err != nil {
-		return accounts, fmt.Errorf("error getting accounts: %w", err)
+		return nodes, fmt.Errorf("error getting nodes: %w", err)
 	}
 
-	err = attributevalue.UnmarshalListOfMaps(response.Items, &accounts)
+	err = attributevalue.UnmarshalListOfMaps(response.Items, &nodes)
 	if err != nil {
-		return accounts, fmt.Errorf("error unmarshaling accounts: %w", err)
+		return nodes, fmt.Errorf("error unmarshaling nodes: %w", err)
 	}
 
-	return accounts, nil
+	return nodes, nil
 }
