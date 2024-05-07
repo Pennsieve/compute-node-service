@@ -62,8 +62,8 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 	accountIdValue := node.Account.AccountId
 	accountTypeKey := "ACCOUNT_TYPE"
 	accountTypeValue := node.Account.AccountType
-	accountUiidKey := "UUID"
-	accountUiidValue := node.Account.Uuid
+	accountUuidKey := "UUID"
+	accountUuidValue := node.Account.Uuid
 	organizationIdKey := "ORG_ID"
 	organizationIdValue := organizationId
 	userIdKey := "USER_ID"
@@ -97,8 +97,8 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 							Value: &accountIdValue,
 						},
 						{
-							Name:  &accountUiidKey,
-							Value: &accountUiidValue,
+							Name:  &accountUuidKey,
+							Value: &accountUuidValue,
 						},
 						{
 							Name:  &accountTypeKey,

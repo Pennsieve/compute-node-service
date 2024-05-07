@@ -20,15 +20,17 @@ func main() {
 	log.Println("Running compute node provisioner")
 	ctx := context.Background()
 
+	computeNodeId := os.Getenv("COMPUTE_NODE_ID")
+	action := os.Getenv("ACTION")
+
 	accountUuid := os.Getenv("ACCOUNT_UUID")
 	accountId := os.Getenv("ACCOUNT_ID")
 	accountType := os.Getenv("ACCOUNT_TYPE")
 	organizationId := os.Getenv("ORG_ID")
 	userId := os.Getenv("USER_ID")
-	action := os.Getenv("ACTION")
 	env := os.Getenv("ENV")
+
 	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
-	computeNodeId := os.Getenv("COMPUTE_NODE_ID")
 
 	// Initializing environment
 	cfg, err := config.LoadDefaultConfig(context.Background())

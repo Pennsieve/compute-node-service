@@ -9,10 +9,12 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/pennsieve/compute-node-service/service/runner"
+	"github.com/pennsieve/compute-node-service/service/store_dynamodb"
 	"github.com/pennsieve/pennsieve-go-core/pkg/authorizer"
 )
 
@@ -41,6 +43,19 @@ func DeleteComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HT
 	organizationId := claims.OrgClaim.NodeId
 	userId := claims.UserClaim.NodeId
 
+	dynamoDBClient := dynamodb.NewFromConfig(cfg)
+	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
+
+	dynamo_store := store_dynamodb.NewNodeDatabaseStore(dynamoDBClient, computeNodesTable)
+	computeNode, err := dynamo_store.GetById(ctx, uuid)
+	if err != nil {
+		log.Println(err.Error())
+		return events.APIGatewayV2HTTPResponse{
+			StatusCode: http.StatusNotFound,
+			Body:       handlerError(handlerName, ErrNoRecordsFound),
+		}, nil
+	}
+
 	client := ecs.NewFromConfig(cfg)
 	log.Println("Initiating new Provisioning Fargate Task.")
 	computeNodeIdKey := "COMPUTE_NODE_ID"
@@ -52,7 +67,13 @@ func DeleteComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HT
 	actionKey := "ACTION"
 	actionValue := "DELETE"
 	tableKey := "COMPUTE_NODES_TABLE"
-	tableValue := os.Getenv("COMPUTE_NODES_TABLE")
+	tableValue := computeNodesTable
+	accountIdKey := "ACCOUNT_ID"
+	accountIdValue := computeNode.AccountId
+	accountTypeKey := "ACCOUNT_TYPE"
+	accountTypeValue := computeNode.AccountType
+	accountUuidKey := "UUID"
+	accountUuidValue := computeNode.AccountUuid
 
 	runTaskIn := &ecs.RunTaskInput{
 		TaskDefinition: aws.String(TaskDefinitionArn),
@@ -92,6 +113,18 @@ func DeleteComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HT
 						{
 							Name:  &userIdKey,
 							Value: &userIdValue,
+						},
+						{
+							Name:  &accountIdKey,
+							Value: &accountIdValue,
+						},
+						{
+							Name:  &accountUuidKey,
+							Value: &accountUuidValue,
+						},
+						{
+							Name:  &accountTypeKey,
+							Value: &accountTypeValue,
 						},
 					},
 				},
