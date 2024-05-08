@@ -108,6 +108,27 @@ data "aws_iam_policy_document" "service_iam_policy_document" {
     resources = ["arn:aws:ssm:${data.aws_region.current_region.name}:${data.aws_caller_identity.current.account_id}:parameter/${var.environment_name}/${var.service_name}/*"]
   }
 
+  statement {
+    sid = "LambdaAccessToDynamoDB"
+    effect = "Allow"
+
+    actions = [
+      "dynamodb:BatchGetItem",
+      "dynamodb:GetItem",
+      "dynamodb:Query",
+      "dynamodb:Scan",
+      "dynamodb:BatchWriteItem",
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem"
+    ]
+
+    resources = [
+      aws_dynamodb_table.compute_nodes_table.arn,
+      "${aws_dynamodb_table.compute_nodes_table.arn}/*"
+    ]
+
+  }
+
 }
 
 # Fargate Task
@@ -193,4 +214,26 @@ statement {
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid = "FargateAccessToDynamoDB"
+    effect = "Allow"
+
+    actions = [
+      "dynamodb:BatchGetItem",
+      "dynamodb:GetItem",
+      "dynamodb:Query",
+      "dynamodb:Scan",
+      "dynamodb:BatchWriteItem",
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem"
+    ]
+
+    resources = [
+      aws_dynamodb_table.compute_nodes_table.arn,
+      "${aws_dynamodb_table.compute_nodes_table.arn}/*"
+    ]
+
+  }
+  
 }
