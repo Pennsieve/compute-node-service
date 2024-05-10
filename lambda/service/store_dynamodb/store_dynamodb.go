@@ -29,7 +29,10 @@ func (r *NodeDatabaseStore) GetById(ctx context.Context, uuid string) (Node, err
 		Key: node.GetKey(), TableName: aws.String(r.TableName),
 	})
 	if err != nil {
-		return node, fmt.Errorf("error getting node: %w", err)
+		return Node{}, fmt.Errorf("error getting node: %w", err)
+	}
+	if response == nil {
+		return Node{}, nil
 	}
 
 	err = attributevalue.UnmarshalMap(response.Item, &node)

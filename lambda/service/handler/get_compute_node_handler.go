@@ -34,6 +34,12 @@ func GetComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HTTPR
 	if err != nil {
 		log.Println(err.Error())
 		return events.APIGatewayV2HTTPResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body:       handlerError(handlerName, ErrDynamoDB),
+		}, nil
+	}
+	if (store_dynamodb.Node{}) == computeNode {
+		return events.APIGatewayV2HTTPResponse{
 			StatusCode: http.StatusNotFound,
 			Body:       handlerError(handlerName, ErrNoRecordsFound),
 		}, nil
