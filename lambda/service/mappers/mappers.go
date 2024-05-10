@@ -6,7 +6,7 @@ import (
 )
 
 func DynamoDBNodeToJsonNode(dynamoNodes []store_dynamodb.Node) []models.Node {
-	var nodes []models.Node
+	nodes := []models.Node{}
 
 	for _, c := range dynamoNodes {
 		nodes = append(nodes, models.Node{
