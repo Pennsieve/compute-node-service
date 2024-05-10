@@ -31,7 +31,7 @@ func (r *NodeDatabaseStore) GetById(ctx context.Context, uuid string) (Node, err
 	if err != nil {
 		return Node{}, fmt.Errorf("error getting node: %w", err)
 	}
-	if response == nil {
+	if response.Item == nil {
 		return Node{}, nil
 	}
 
