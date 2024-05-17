@@ -79,7 +79,7 @@ func (r *NodeDatabaseStore) Delete(ctx context.Context, computeNodeId string) er
 		TableName: aws.String(r.TableName),
 	})
 	if err != nil {
-		return fmt.Errorf("error deleteing node: %w", err)
+		return fmt.Errorf("error deleting node: %w", err)
 	}
 
 	return nil
