@@ -10,8 +10,8 @@ output "workflow_manager_ecr_repository" {
   value = aws_ecr_repository.workflow-manager.repository_url
 }
 
-output "sqs_url" {
-  description = "SQS URL"
+output "queue_url" {
+  description = "Queue URL"
 
   value = aws_sqs_queue.workflow_queue.id
 }

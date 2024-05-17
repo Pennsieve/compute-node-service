@@ -45,15 +45,16 @@ func main() {
 		log.Fatal("error running provisioner", err.Error())
 	}
 
-	parser := parser.NewOutputParser("/usr/src/app/terraform/infrastructure/outputs.json")
-	outputs, err := parser.Run(ctx)
-	if err != nil {
-		log.Fatal("error running output parser", err.Error())
-	}
-
-	// Database actions
+	// POST provisioning actions
 	switch action {
 	case "CREATE":
+		// parse output file created after infrastructure creation
+		parser := parser.NewOutputParser("/usr/src/app/terraform/infrastructure/outputs.json")
+		outputs, err := parser.Run(ctx)
+		if err != nil {
+			log.Fatal("error running output parser", err.Error())
+		}
+
 		// persist to dynamodb
 		dynamoDBClient := dynamodb.NewFromConfig(cfg)
 		computeNodesStore := store_dynamodb.NewNodeDatabaseStore(dynamoDBClient, computeNodesTable)
