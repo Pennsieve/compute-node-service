@@ -29,6 +29,8 @@ func main() {
 	organizationId := os.Getenv("ORG_ID")
 	userId := os.Getenv("USER_ID")
 	env := os.Getenv("ENV")
+	nodeName := os.Getenv("NODE_NAME")
+	nodeDescription := os.Getenv("NODE_DESCRIPTION")
 
 	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
 
@@ -76,6 +78,8 @@ func main() {
 		computeNodeId := id.String()
 		store_nodes := store_dynamodb.Node{
 			Uuid:                  computeNodeId,
+			Name:                  nodeName,
+			Description:           nodeDescription,
 			ComputeNodeGatewayUrl: outputs.ComputeNodeGatewayUrl.Value,
 			EfsId:                 outputs.EfsId.Value,
 			QueueUrl:              outputs.QueueUrl.Value,

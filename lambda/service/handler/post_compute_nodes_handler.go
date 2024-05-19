@@ -72,6 +72,10 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 	actionValue := "CREATE"
 	tableKey := "COMPUTE_NODES_TABLE"
 	tableValue := os.Getenv("COMPUTE_NODES_TABLE")
+	nodeNameKey := "NODE_NAME"
+	nodeDescriptionKey := "NODE_DESCRIPTION"
+	nameValue := node.Name
+	descriptionValue := node.Description
 
 	runTaskIn := &ecs.RunTaskInput{
 		TaskDefinition: aws.String(TaskDefinitionArn),
@@ -91,6 +95,14 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 						{
 							Name:  &envKey,
 							Value: &envValue,
+						},
+						{
+							Name:  &nodeNameKey,
+							Value: &nameValue,
+						},
+						{
+							Name:  &nodeDescriptionKey,
+							Value: &descriptionValue,
 						},
 						{
 							Name:  &accountIdKey,
