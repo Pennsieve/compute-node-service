@@ -7,6 +7,8 @@ import (
 
 type Node struct {
 	Uuid                  string `dynamodbav:"uuid"`
+	Name                  string `dynamodbav:"name"`
+	Description           string `dynamodbav:"description"`
 	ComputeNodeGatewayUrl string `dynamodbav:"computeNodeGatewayUrl"`
 	EfsId                 string `dynamodbav:"efsId"`
 	QueueUrl              string `dynamodbav:"queueUrl"`

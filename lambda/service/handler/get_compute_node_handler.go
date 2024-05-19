@@ -47,6 +47,8 @@ func GetComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HTTPR
 
 	m, err := json.Marshal(models.Node{
 		Uuid:                  computeNode.Uuid,
+		Name:                  computeNode.Name,
+		Description:           computeNode.Description,
 		ComputeNodeGatewayUrl: computeNode.ComputeNodeGatewayUrl,
 		EfsId:                 computeNode.EfsId,
 		QueueUrl:              computeNode.QueueUrl,
