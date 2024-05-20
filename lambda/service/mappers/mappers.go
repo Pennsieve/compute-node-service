@@ -11,6 +11,8 @@ func DynamoDBNodeToJsonNode(dynamoNodes []store_dynamodb.Node) []models.Node {
 	for _, c := range dynamoNodes {
 		nodes = append(nodes, models.Node{
 			Uuid:                  c.Uuid,
+			Name:                  c.Name,
+			Description:           c.Description,
 			ComputeNodeGatewayUrl: c.ComputeNodeGatewayUrl,
 			EfsId:                 c.EfsId,
 			QueueUrl:              c.QueueUrl,
