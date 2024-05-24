@@ -17,6 +17,7 @@ resource "aws_lambda_function" "compute_gateway" {
     variables = {
       REGION = var.region
       SQS_URL = aws_sqs_queue.workflow_queue.id
+      API_KEY_SM_NAME = aws_secretsmanager_secret.api_key_secret.name
     }
   }
 }
