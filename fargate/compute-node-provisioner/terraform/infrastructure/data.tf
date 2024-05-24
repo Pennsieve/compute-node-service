@@ -37,4 +37,15 @@ data "aws_iam_policy_document" "iam_policy_document_gateway" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "SecretsManager"
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue",
+    ]
+    resources = [
+      "*"
+    ]
+  }
 }
