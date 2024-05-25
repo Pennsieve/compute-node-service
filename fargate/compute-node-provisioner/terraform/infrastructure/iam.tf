@@ -80,7 +80,7 @@ resource "aws_iam_policy" "ecs_run_task" {
 }
 
 resource "aws_iam_policy" "ecs_get_secrets" {
-  name = "ecs_task_role_run_task-${var.account_id}-${var.env}"
+  name = "ecs_task_role_ecs_get_secrets-${var.account_id}-${var.env}"
 
   policy = jsonencode({
     Version = "2012-10-17"
