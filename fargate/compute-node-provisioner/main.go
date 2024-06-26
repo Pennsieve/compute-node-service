@@ -8,8 +8,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/iam"
-	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/google/uuid"
 	aws "github.com/pennsieve/compute-node-service/compute-node-provisioner/provisioner/aws"
 	"github.com/pennsieve/compute-node-service/compute-node-provisioner/provisioner/parser"
@@ -40,8 +38,7 @@ func main() {
 		log.Fatalf("LoadDefaultConfig: %v\n", err)
 	}
 
-	provisioner := aws.NewAWSProvisioner(iam.NewFromConfig(cfg), sts.NewFromConfig(cfg),
-		accountId, action, env)
+	provisioner := aws.NewAWSProvisioner(cfg, accountId, action, env)
 	err = provisioner.Run(ctx)
 	if err != nil {
 		log.Fatal("error running provisioner", err.Error())

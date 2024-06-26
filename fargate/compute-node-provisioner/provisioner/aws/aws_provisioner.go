@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -17,17 +19,15 @@ import (
 )
 
 type AWSProvisioner struct {
-	IAMClient     *iam.Client
-	STSClient     *sts.Client
+	Config        aws.Config
 	AccountId     string
 	BackendExists bool
 	Action        string
 	Env           string
 }
 
-func NewAWSProvisioner(iamClient *iam.Client, stsClient *sts.Client, accountId string, action string, env string) provisioner.Provisioner {
-	return &AWSProvisioner{IAMClient: iamClient, STSClient: stsClient,
-		AccountId: accountId, Action: action, Env: env}
+func NewAWSProvisioner(cfg aws.Config, accountId string, action string, env string) provisioner.Provisioner {
+	return &AWSProvisioner{Config: cfg, AccountId: accountId, Action: action, Env: env}
 }
 
 func (p *AWSProvisioner) Run(ctx context.Context) error {
@@ -44,17 +44,19 @@ func (p *AWSProvisioner) Run(ctx context.Context) error {
 
 }
 
-func (p *AWSProvisioner) assumeRole(ctx context.Context) (aws.Credentials, error) {
+func (p *AWSProvisioner) AssumeRole(ctx context.Context) (aws.Credentials, error) {
 	log.Println("assuming role ...")
 
-	provisionerAccountId, err := p.STSClient.GetCallerIdentity(ctx,
+	stsClient := sts.NewFromConfig(p.Config)
+
+	provisionerAccountId, err := stsClient.GetCallerIdentity(ctx,
 		&sts.GetCallerIdentityInput{})
 	if err != nil {
 		return aws.Credentials{}, err
 	}
 
 	roleArn := fmt.Sprintf("arn:aws:iam::%s:role/ROLE-%s", p.AccountId, *provisionerAccountId.Account)
-	appCreds := stscreds.NewAssumeRoleProvider(p.STSClient, roleArn)
+	appCreds := stscreds.NewAssumeRoleProvider(stsClient, roleArn)
 	credentials, err := appCreds.Retrieve(ctx)
 	if err != nil {
 		return aws.Credentials{}, err
@@ -63,10 +65,80 @@ func (p *AWSProvisioner) assumeRole(ctx context.Context) (aws.Credentials, error
 	return credentials, nil
 }
 
+func (p *AWSProvisioner) CreatePolicy(ctx context.Context) error {
+	log.Println("creating an inline policy ...")
+	stsClient := sts.NewFromConfig(p.Config)
+	iamClient := iam.NewFromConfig(p.Config)
+
+	provisionerAccountId, err := stsClient.GetCallerIdentity(ctx,
+		&sts.GetCallerIdentityInput{})
+	if err != nil {
+		return err
+	}
+
+	policyDoc := fmt.Sprintf(`{
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Action": "sts:AssumeRole",
+							"Resource": "arn:aws:iam::%s:role/ROLE-%s"
+						}
+					]
+				}`, p.AccountId, *provisionerAccountId.Account)
+
+	// TODO: find a cleaner way to get RoleName
+	output, err := iamClient.PutRolePolicy(context.Background(), &iam.PutRolePolicyInput{
+		PolicyName:     aws.String(fmt.Sprintf("ExternalAccountInlinePolicy-%s", p.AccountId)),
+		PolicyDocument: aws.String(policyDoc),
+		RoleName:       aws.String(fmt.Sprintf("%s-compute-node-service-fargate-task-role-use1", p.Env)),
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(output)
+	// wait for policy to be attached
+	time.Sleep(25 * time.Second)
+
+	return nil
+}
+
+func (p *AWSProvisioner) GetPolicy(ctx context.Context) (*string, error) {
+	log.Println("getting policy ...")
+
+	iamClient := iam.NewFromConfig(p.Config)
+
+	// TODO: find a cleaner way to get RoleName
+	output, err := iamClient.GetRolePolicy(context.Background(), &iam.GetRolePolicyInput{
+		PolicyName: aws.String(fmt.Sprintf("ExternalAccountInlinePolicy-%s", p.AccountId)),
+		RoleName:   aws.String(fmt.Sprintf("%s-compute-node-service-fargate-task-role-use1", p.Env)),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("%v", output.PolicyDocument)
+	return output.PolicyDocument, err
+}
+
 func (p *AWSProvisioner) create(ctx context.Context) error {
 	log.Println("creating infrastructure ...")
 
-	creds, err := p.assumeRole(ctx)
+	_, err := p.GetPolicy(context.Background())
+	if err != nil {
+		if strings.Contains(err.Error(), "NoSuchEntity") {
+			log.Printf("no inline policy exists for account: %s, creating ...", p.AccountId)
+			err = p.CreatePolicy(context.Background())
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	creds, err := p.AssumeRole(ctx)
 	if err != nil {
 		return err
 	}
@@ -117,7 +189,7 @@ func (p *AWSProvisioner) create(ctx context.Context) error {
 func (p *AWSProvisioner) delete(ctx context.Context) error {
 	fmt.Println("destroying infrastructure")
 
-	creds, err := p.assumeRole(ctx)
+	creds, err := p.AssumeRole(ctx)
 	if err != nil {
 		return err
 	}
