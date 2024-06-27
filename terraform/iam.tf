@@ -236,5 +236,16 @@ statement {
     ]
 
   }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "iam:PutRolePolicy",
+      "iam:GetRolePolicy",
+    ]
+
+     resources = ["*"]
+  }
   
 }
