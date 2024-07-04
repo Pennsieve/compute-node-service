@@ -38,4 +38,5 @@ echo "Running apply ..."
 terraform apply tfplan
 terraform output -json > $OUTPUT_FILE
 
+cat error.log
 echo "DONE RUNNING IN ENVIRONMENT: $ENV"

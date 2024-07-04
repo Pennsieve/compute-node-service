@@ -36,4 +36,5 @@ terraform init -force-copy -backend-config=$BACKEND_FILE
 echo "Running destroy ..."
 terraform apply -destroy -auto-approve -var-file=$VAR_FILE
 
+cat error.log
 echo "DONE RUNNING IN ENVIRONMENT: $ENV"
