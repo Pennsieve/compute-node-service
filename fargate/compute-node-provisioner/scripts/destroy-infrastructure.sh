@@ -27,6 +27,8 @@ wm_memory = "${WM_MEMORY:-4096}"
 az = ["a", "b", "c", "d", "e", "f"]
 EOL
 
+cat $BACKEND_FILE
+cat $VAR_FILE
 
 echo "Running init and destroy ..."
 export TF_LOG_PATH="error.log"
