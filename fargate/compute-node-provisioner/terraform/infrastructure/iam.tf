@@ -35,7 +35,7 @@ resource "aws_iam_policy" "lambda_iam_policy" {
 resource "aws_iam_role" "task_role_for_ecs_task" {
   name               = "task_role_for_ecs_task-${var.account_id}-${var.env}"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_role_assume_role.json
-  managed_policy_arns = [aws_iam_policy.efs_policy.arn, aws_iam_policy.ecs_run_task.arn,  aws_iam_policy.ecs_get_secrets]
+  managed_policy_arns = [aws_iam_policy.efs_policy.arn,aws_iam_policy.ecs_run_task.arn,aws_iam_policy.ecs_get_secrets.arn]
 }
 
 resource "aws_iam_policy" "efs_policy" {
