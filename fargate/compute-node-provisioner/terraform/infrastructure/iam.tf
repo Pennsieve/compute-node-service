@@ -35,7 +35,7 @@ resource "aws_iam_policy" "lambda_iam_policy" {
 resource "aws_iam_role" "task_role_for_ecs_task" {
   name               = "task_role_for_ecs_task-${var.account_id}-${var.env}"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_role_assume_role.json
-  managed_policy_arns = [aws_iam_policy.efs_policy.arn,aws_iam_policy.ecs_run_task.arn,aws_iam_policy.ecs_get_secrets.arn]
+  managed_policy_arns = [aws_iam_policy.efs_policy.arn,aws_iam_policy.ecs_run_task.arn,aws_iam_policy.ecs_get_secrets.arn,aws_iam_policy.s3_policy.arn]
 }
 
 resource "aws_iam_policy" "efs_policy" {
@@ -49,6 +49,23 @@ resource "aws_iam_policy" "efs_policy" {
           "elasticfilesystem:ClientMount",
           "elasticfilesystem:ClientWrite",
           "elasticfilesystem:ClientRootAccess"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_policy" "s3_policy" {
+  name = "ecs_task_role_s3_policy-${var.account_id}-${var.env}"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:*"
         ]
         Effect   = "Allow"
         Resource = "*"
