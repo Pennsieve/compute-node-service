@@ -89,6 +89,7 @@ resource "aws_iam_policy" "ecs_run_task" {
           "iam:PassRole",
           "sqs:receivemessage",
           "sqs:deletemessage",
+          "logs:GetLogEvents"
         ]
         Effect   = "Allow"
         Resource = "*"
