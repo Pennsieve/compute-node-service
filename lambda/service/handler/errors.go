@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"encoding/json"
 	"errors"
-	"fmt"
+	"log"
+
+	"github.com/pennsieve/compute-node-service/service/models"
 )
 
 var ErrUnmarshaling = errors.New("error unmarshaling body")
@@ -14,6 +17,15 @@ var ErrNoRecordsFound = errors.New("error no records found")
 var ErrMarshaling = errors.New("error marshaling item")
 var ErrDynamoDB = errors.New("error performing action on DynamoDB table")
 
-func handlerError(handlerName string, handlerError error) string {
-	return fmt.Sprintf("%s: %s", handlerName, handlerError.Error())
+func handlerError(handlerName string, errorMessage error) string {
+	log.Printf("%s: %s", handlerName, errorMessage.Error())
+	m, err := json.Marshal(models.NodeResponse{
+		Message: errorMessage.Error(),
+	})
+	if err != nil {
+		log.Printf("%s: %s", handlerName, err.Error())
+		return err.Error()
+	}
+
+	return string(m)
 }
