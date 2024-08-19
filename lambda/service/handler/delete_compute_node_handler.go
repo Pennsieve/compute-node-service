@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/pennsieve/compute-node-service/service/models"
 	"github.com/pennsieve/compute-node-service/service/runner"
 	"github.com/pennsieve/compute-node-service/service/store_dynamodb"
 	"github.com/pennsieve/pennsieve-go-core/pkg/authorizer"
@@ -142,8 +144,19 @@ func DeleteComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HT
 		}, nil
 	}
 
+	m, err := json.Marshal(models.NodeResponse{
+		Message: "Compute node deletion initiated",
+	})
+	if err != nil {
+		log.Println(err.Error())
+		return events.APIGatewayV2HTTPResponse{
+			StatusCode: 500,
+			Body:       handlerError(handlerName, ErrMarshaling),
+		}, nil
+	}
+
 	return events.APIGatewayV2HTTPResponse{
 		StatusCode: http.StatusAccepted,
-		Body:       string("Compute node deletion initiated"),
+		Body:       string(m),
 	}, nil
 }

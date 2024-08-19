@@ -20,3 +20,7 @@ type Account struct {
 	AccountId   string `json:"accountId"`
 	AccountType string `json:"accountType"`
 }
+
+type NodeResponse struct {
+	Message string `json:"message"`
+}
