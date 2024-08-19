@@ -148,8 +148,19 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 		}, nil
 	}
 
+	m, err := json.Marshal(models.NodeResponse{
+		Message: "Compute node creation initiated",
+	})
+	if err != nil {
+		log.Println(err.Error())
+		return events.APIGatewayV2HTTPResponse{
+			StatusCode: 500,
+			Body:       handlerError(handlerName, ErrMarshaling),
+		}, nil
+	}
+
 	return events.APIGatewayV2HTTPResponse{
 		StatusCode: http.StatusAccepted,
-		Body:       string("Compute node creation initiated"),
+		Body:       string(m),
 	}, nil
 }
