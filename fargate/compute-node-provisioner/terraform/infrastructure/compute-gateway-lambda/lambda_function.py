@@ -6,6 +6,7 @@ import base64
 import os
 
 def lambda_handler(event, context):
+    print(event)
     if event['isBase64Encoded'] == True:
         body = base64.b64decode(event['body']).decode('utf-8')
         event['body'] = body
