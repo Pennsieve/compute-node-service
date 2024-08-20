@@ -57,8 +57,8 @@ def lambda_handler(event, context):
         print("get method")
         if "/logs" in path:
             queryStringParameters = event['queryStringParameters']
-            integrationId = queryStringParameters['integrationId']
-            if integrationId:
+            integration_id = queryStringParameters['integrationId']
+            if integration_id:
                 print(integration_id)
                 s3_client = boto3_client('s3')
                 sts_client = boto3_client("sts")
