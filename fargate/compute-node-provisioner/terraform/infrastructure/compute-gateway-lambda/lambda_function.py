@@ -56,9 +56,8 @@ def lambda_handler(event, context):
     elif http_method == 'GET':
         print("get method")
         if "/logs" in path:
-            queryStringParameters = event['queryStringParameters']
-            integration_id = queryStringParameters['integrationId']
-            if integration_id:
+            if "queryStringParameters" in event and 'integrationId' in event['queryStringParameters']:
+                integration_id = event['queryStringParameters']['integrationId']
                 print(integration_id)
                 s3_client = boto3_client('s3')
                 sts_client = boto3_client("sts")
@@ -66,21 +65,31 @@ def lambda_handler(event, context):
                 print(account_id)
 
                 bucket_name = "tfstate-{0}".format(account_id)
+                print(bucket_name)
                 prefix = "{0}/logs/{1}".format(environment,integration_id)
-                response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+                print(prefix)
 
-                file_list = []
-                for obj in response['Contents']:
-                    file_list.append(obj['Key'])
-                print(file_list)
-
-                return {
-                    'statusCode': 200,
-                    'body': json.dumps(str("logs"))
-                }
+                response = s3_client.list_objects(Bucket=bucket_name, Prefix=prefix)
+                print(response)
+                if response.get('Contents'):
+                    for o in response.get('Contents'):
+                        if "events.log" in o.get('Key'):
+                            data = s3_client.get_object(Bucket=bucket_name, Key=o.get('Key'))
+                            contents = data['Body'].read()
+                            print(contents.decode("utf-8"))
+                        
+                    return {
+                        'statusCode': 200,
+                        'body': json.dumps({ 'message' : str(contents.decode("utf-8"))})
+                    }
+                else:
+                    return {
+                        'statusCode': 404,
+                        'body': json.dumps({ 'message': str("no logs found")})
+                    }
 
             else:
                 return {
                     'statusCode': 400,
-                    'body': json.dumps(str("integrationId is required"))
+                    'body': json.dumps({ 'message': str("integrationId is required")})
                 }
