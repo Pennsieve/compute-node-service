@@ -4,6 +4,7 @@ from botocore.exceptions import ClientError
 import json
 import base64
 import os
+import csv
 
 def lambda_handler(event, context):
     print(event)
@@ -56,6 +57,56 @@ def lambda_handler(event, context):
     elif http_method == 'GET':
         print("get method")
         if "/logs" in path:
+            contents = ''
+            if "queryStringParameters" in event and 'integrationId' in event['queryStringParameters'] and 'applicationId' in event['queryStringParameters']:
+                integration_id = event['queryStringParameters']['integrationId']
+                application_id = event['queryStringParameters']['applicationId']
+
+                cloudwatch_client = boto3_client("logs")
+                s3_client = boto3_client('s3')
+                sts_client = boto3_client("sts")
+
+                account_id = sts_client.get_caller_identity()["Account"]
+                print(account_id)
+
+                bucket_name = "tfstate-{0}".format(account_id)
+                print(bucket_name)
+                prefix = "{0}/logs/{1}".format(environment,integration_id)
+                print(prefix)
+
+                response = s3_client.list_objects(Bucket=bucket_name, Prefix=prefix)
+                print(response)
+                if response.get('Contents'):
+                    for o in response.get('Contents'):
+                        if "processors.csv" in o.get('Key'):
+                            data = s3_client.get_object(Bucket=bucket_name, Key=o.get('Key'))
+                            csv_bytes = data['Body'].read()
+                            print(contents)
+                            csv_string = csv_bytes.decode('utf-8')
+                            rows = [row for row in csv.reader(csv_string.splitlines())]
+                            print(rows)
+                            log_events = ''
+                            for row in rows[1:]:
+                                if row[4] == application_id:
+                                    log_events = cloudwatch_client.get_log_events(
+                                        logGroupName=row[2],
+                                        logStreamName=row[3])
+                                    print(log_events['events'])
+                    if log_events:    
+                        return {
+                            'statusCode': 200,
+                            'body': json.dumps({ 'message': log_events})
+                        }
+                    else:
+                        return {
+                            'statusCode': 200,
+                            'body': json.dumps({ 'message': str("no logs found")})
+                        }
+                else:
+                    return {
+                        'statusCode': 404,
+                        'body': json.dumps({ 'message': str("no logs found")})
+                    }
             if "queryStringParameters" in event and 'integrationId' in event['queryStringParameters']:
                 integration_id = event['queryStringParameters']['integrationId']
                 print(integration_id)
