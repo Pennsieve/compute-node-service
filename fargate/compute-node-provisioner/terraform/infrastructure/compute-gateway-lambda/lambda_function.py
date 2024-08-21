@@ -55,13 +55,20 @@ def lambda_handler(event, context):
             'body': json.dumps(str(response))
         }
     elif http_method == 'GET':
-        print("get method")
         if "/logs" in path:
             contents = ''
-            if "queryStringParameters" in event and 'integrationId' in event['queryStringParameters'] and 'applicationId' in event['queryStringParameters']:
-                integration_id = event['queryStringParameters']['integrationId']
-                application_id = event['queryStringParameters']['applicationId']
-
+            if "queryStringParameters" in event:
+                if 'integrationId' in event['queryStringParameters']:
+                    integration_id = event['queryStringParameters']['integrationId']
+                else:
+                    return {
+                            'statusCode': 400,
+                            'body': json.dumps({ 'messages': str("integrationId is required")})
+                        }
+                application_id = ''    
+                if 'applicationId' in event['queryStringParameters']:    
+                    application_id = event['queryStringParameters']['applicationId']
+                    
                 cloudwatch_client = boto3_client("logs")
                 s3_client = boto3_client('s3')
                 sts_client = boto3_client("sts")
@@ -77,70 +84,44 @@ def lambda_handler(event, context):
                 response = s3_client.list_objects(Bucket=bucket_name, Prefix=prefix)
                 print(response)
                 if response.get('Contents'):
-                    for o in response.get('Contents'):
-                        if "processors.csv" in o.get('Key'):
-                            data = s3_client.get_object(Bucket=bucket_name, Key=o.get('Key'))
-                            csv_bytes = data['Body'].read()
-                            print(contents)
-                            csv_string = csv_bytes.decode('utf-8')
-                            rows = [row for row in csv.reader(csv_string.splitlines())]
-                            print(rows)
-                            log_events = ''
-                            for row in rows[1:]:
-                                if row[4] == application_id:
-                                    log_events = cloudwatch_client.get_log_events(
-                                        logGroupName=row[2],
-                                        logStreamName=row[3])
-                                    print(log_events['events'])
-                    if log_events:    
+                    data = s3_client.get_object(Bucket=bucket_name, Key="{0}/processors.csv".format(prefix))
+                    csv_bytes = data['Body'].read()
+                    print(contents)
+                    csv_string = csv_bytes.decode('utf-8')
+                    rows = [row for row in csv.reader(csv_string.splitlines())]
+                    print(rows)
+                    log_events = ''
+                    messages = {}
+                    for row in rows[1:]:
+                        log_events = cloudwatch_client.get_log_events(
+                            logGroupName=row[2],
+                            logStreamName=row[3])
+                        messages[row[4]] = log_events['events']  
+                        
+                    # TODO: reduce duplicated returns    
+                    if messages and application_id:
+                        if application_id in messages:
+                            return {
+                                'statusCode': 200,
+                                'body': json.dumps({ 'messages': messages[application_id]})
+                            }
+                        else:
+                            return {
+                            'statusCode': 404,
+                            'body': json.dumps({ 'messages': []})
+                        }
+                    elif messages:    
                         return {
                             'statusCode': 200,
-                            'body': json.dumps({ 'message': log_events})
-                        }
+                            'body': json.dumps({ 'messages': messages})
+                        }    
                     else:
                         return {
-                            'statusCode': 200,
-                            'body': json.dumps({ 'message': str("no logs found")})
+                            'statusCode': 404,
+                            'body': json.dumps({ 'messages': []})
                         }
                 else:
                     return {
                         'statusCode': 404,
-                        'body': json.dumps({ 'message': str("no logs found")})
+                        'body': json.dumps({ 'messages': []})
                     }
-            if "queryStringParameters" in event and 'integrationId' in event['queryStringParameters']:
-                integration_id = event['queryStringParameters']['integrationId']
-                print(integration_id)
-                s3_client = boto3_client('s3')
-                sts_client = boto3_client("sts")
-                account_id = sts_client.get_caller_identity()["Account"]
-                print(account_id)
-
-                bucket_name = "tfstate-{0}".format(account_id)
-                print(bucket_name)
-                prefix = "{0}/logs/{1}".format(environment,integration_id)
-                print(prefix)
-
-                response = s3_client.list_objects(Bucket=bucket_name, Prefix=prefix)
-                print(response)
-                if response.get('Contents'):
-                    for o in response.get('Contents'):
-                        if "events.log" in o.get('Key'):
-                            data = s3_client.get_object(Bucket=bucket_name, Key=o.get('Key'))
-                            contents = data['Body'].read()
-                            print(contents.decode("utf-8"))
-                        
-                    return {
-                        'statusCode': 200,
-                        'body': json.dumps({ 'message' : str(contents.decode("utf-8"))})
-                    }
-                else:
-                    return {
-                        'statusCode': 404,
-                        'body': json.dumps({ 'message': str("no logs found")})
-                    }
-
-            else:
-                return {
-                    'statusCode': 400,
-                    'body': json.dumps({ 'message': str("integrationId is required")})
-                }
