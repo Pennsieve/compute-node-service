@@ -65,31 +65,25 @@ def lambda_handler(event, context):
                             'statusCode': 400,
                             'body': json.dumps({ 'messages': str("integrationId is required")})
                         }
-                application_id = ''    
-                if 'applicationId' in event['queryStringParameters']:    
-                    application_id = event['queryStringParameters']['applicationId']
+                application_uuid = ''    
+                if 'applicationUuid' in event['queryStringParameters']:    
+                    application_uuid = event['queryStringParameters']['applicationUuid']
                     
                 cloudwatch_client = boto3_client("logs")
                 s3_client = boto3_client('s3')
                 sts_client = boto3_client("sts")
 
                 account_id = sts_client.get_caller_identity()["Account"]
-                print(account_id)
-
                 bucket_name = "tfstate-{0}".format(account_id)
-                print(bucket_name)
                 prefix = "{0}/logs/{1}".format(environment,integration_id)
-                print(prefix)
 
                 response = s3_client.list_objects(Bucket=bucket_name, Prefix=prefix)
-                print(response)
+
                 if response.get('Contents'):
                     data = s3_client.get_object(Bucket=bucket_name, Key="{0}/processors.csv".format(prefix))
                     csv_bytes = data['Body'].read()
-                    print(contents)
                     csv_string = csv_bytes.decode('utf-8')
                     rows = [row for row in csv.reader(csv_string.splitlines())]
-                    print(rows)
                     log_events = ''
                     messages = {}
                     for row in rows[1:]:
@@ -97,31 +91,21 @@ def lambda_handler(event, context):
                             logGroupName=row[2],
                             logStreamName=row[3])
                         messages[row[4]] = log_events['events']  
-                        
-                    # TODO: reduce duplicated returns    
-                    if messages and application_id:
-                        if application_id in messages:
-                            return {
-                                'statusCode': 200,
-                                'body': json.dumps({ 'messages': messages[application_id]})
-                            }
+ 
+                    if messages and application_uuid:
+                        if application_uuid in messages:
+                            returnResponse(200, json.dumps({ 'messages': messages[application_uuid]}))
                         else:
-                            return {
-                            'statusCode': 404,
-                            'body': json.dumps({ 'messages': []})
-                        }
-                    elif messages:    
-                        return {
-                            'statusCode': 200,
-                            'body': json.dumps({ 'messages': messages})
-                        }    
+                            returnResponse(404, json.dumps({ 'messages': []}))
+                    elif messages:
+                        returnResponse(200, json.dumps({ 'messages': messages}))   
                     else:
-                        return {
-                            'statusCode': 404,
-                            'body': json.dumps({ 'messages': []})
-                        }
+                        returnResponse(404, json.dumps({ 'messages': []}))
                 else:
-                    return {
-                        'statusCode': 404,
-                        'body': json.dumps({ 'messages': []})
-                    }
+                    returnResponse(404, json.dumps({ 'messages': []}))
+                
+def returnResponse(statusCode, body):
+    return {
+            'statusCode': statusCode,
+            'body': body
+    }
