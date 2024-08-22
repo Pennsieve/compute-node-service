@@ -91,21 +91,31 @@ def lambda_handler(event, context):
                             logGroupName=row[2],
                             logStreamName=row[3])
                         messages[row[4]] = log_events['events']  
- 
+                        
+                    # TODO: reduce duplicated returns    
                     if messages and application_uuid:
                         if application_uuid in messages:
-                            returnResponse(200, json.dumps({ 'messages': messages[application_uuid]}))
+                            return {
+                                'statusCode': 200,
+                                'body': json.dumps({ 'messages': messages[application_uuid]})
+                            }
                         else:
-                            returnResponse(404, json.dumps({ 'messages': []}))
-                    elif messages:
-                        returnResponse(200, json.dumps({ 'messages': messages}))   
+                            return {
+                            'statusCode': 404,
+                            'body': json.dumps({ 'messages': []})
+                        }
+                    elif messages:    
+                        return {
+                            'statusCode': 200,
+                            'body': json.dumps({ 'messages': messages})
+                        }    
                     else:
-                        returnResponse(404, json.dumps({ 'messages': []}))
+                        return {
+                            'statusCode': 404,
+                            'body': json.dumps({ 'messages': []})
+                        }
                 else:
-                    returnResponse(404, json.dumps({ 'messages': []}))
-                
-def returnResponse(statusCode, body):
-    return {
-            'statusCode': statusCode,
-            'body': body
-    }
+                    return {
+                        'statusCode': 404,
+                        'body': json.dumps({ 'messages': []})
+                    }
