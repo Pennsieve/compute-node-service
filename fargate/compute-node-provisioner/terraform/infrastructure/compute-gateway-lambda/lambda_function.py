@@ -84,12 +84,19 @@ def lambda_handler(event, context):
                     csv_bytes = data['Body'].read()
                     csv_string = csv_bytes.decode('utf-8')
                     rows = [row for row in csv.reader(csv_string.splitlines())]
-                    log_events = ''
+                    log_events = {}
                     messages = {}
                     for row in rows[1:]:
-                        log_events = cloudwatch_client.get_log_events(
+                        try:
+                            log_events = cloudwatch_client.get_log_events(
                             logGroupName=row[2],
                             logStreamName=row[3])
+                        except ClientError as e:
+                            if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                                log_events['events'] = []
+                            else:
+                                raise e
+                        
                         messages[row[4]] = log_events['events']  
                         
                     # TODO: reduce duplicated returns    
