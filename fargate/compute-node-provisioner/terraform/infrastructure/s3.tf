@@ -1,6 +1,6 @@
 // S3 bucket
 resource "aws_s3_bucket" "lambda_bucket" {
-  bucket = "lambda-bucket-${var.account_id}-${var.env}"
+  bucket = "lambda-bucket-${var.account_id}-${var.env}-${var.tag}"
 }
 
 resource "aws_s3_bucket_ownership_controls" "lambda_bucket" {

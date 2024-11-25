@@ -27,6 +27,7 @@ func main() {
 	organizationId := os.Getenv("ORG_ID")
 	userId := os.Getenv("USER_ID")
 	env := os.Getenv("ENV")
+	tag := os.Getenv("TAG")
 	nodeName := os.Getenv("NODE_NAME")
 	nodeDescription := os.Getenv("NODE_DESCRIPTION")
 
@@ -38,7 +39,7 @@ func main() {
 		log.Fatalf("LoadDefaultConfig: %v\n", err)
 	}
 
-	provisioner := aws.NewAWSProvisioner(cfg, accountId, action, env)
+	provisioner := aws.NewAWSProvisioner(cfg, accountId, action, env, tag)
 	err = provisioner.Run(ctx)
 	if err != nil {
 		log.Fatal("error running provisioner", err.Error())

@@ -24,10 +24,11 @@ type AWSProvisioner struct {
 	BackendExists bool
 	Action        string
 	Env           string
+	Tag           string
 }
 
-func NewAWSProvisioner(cfg aws.Config, accountId string, action string, env string) provisioner.Provisioner {
-	return &AWSProvisioner{Config: cfg, AccountId: accountId, Action: action, Env: env}
+func NewAWSProvisioner(cfg aws.Config, accountId string, action string, env string, tag string) provisioner.Provisioner {
+	return &AWSProvisioner{Config: cfg, AccountId: accountId, Action: action, Env: env, Tag: tag}
 }
 
 func (p *AWSProvisioner) Run(ctx context.Context) error {
