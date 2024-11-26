@@ -45,7 +45,7 @@ func main() {
 		log.Fatal("error running provisioner", err.Error())
 	}
 
-	// POST provisioning actions
+	// after provisioning actions
 	switch action {
 	case "CREATE":
 		// parse output file created after infrastructure creation
@@ -59,7 +59,7 @@ func main() {
 		dynamoDBClient := dynamodb.NewFromConfig(cfg)
 		computeNodesStore := store_dynamodb.NewNodeDatabaseStore(dynamoDBClient, computeNodesTable)
 
-		nodes, err := computeNodesStore.Get(ctx, accountUuid, env)
+		nodes, err := computeNodesStore.Get(ctx, accountUuid, env, tag)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -67,8 +67,8 @@ func main() {
 			log.Fatal("expected only one compute node entry")
 		}
 		if len(nodes) == 1 {
-			log.Fatalf("compute node with account uuid: %s, env: %s already exists",
-				nodes[0].AccountUuid, nodes[0].Env)
+			log.Fatalf("compute node with account uuid: %s, env: %s, tag: %s already exists",
+				nodes[0].AccountUuid, nodes[0].Env, nodes[0].Tag)
 
 		}
 
@@ -89,6 +89,7 @@ func main() {
 			OrganizationId:        organizationId,
 			UserId:                userId,
 			CreatedAt:             time.Now().UTC().String(),
+			Tag:                   tag,
 		}
 		err = computeNodesStore.Insert(ctx, store_nodes)
 		if err != nil {

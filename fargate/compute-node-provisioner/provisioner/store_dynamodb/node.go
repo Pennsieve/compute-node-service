@@ -20,6 +20,7 @@ type Node struct {
 	OrganizationId        string `dynamodbav:"organizationId"`
 	UserId                string `dynamodbav:"userId"`
 	CreatedAt             string `dynamodbav:"createdAt"`
+	Tag                   string `dynamodbav:"tag"`
 }
 
 type DeleteNode struct {
