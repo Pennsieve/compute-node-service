@@ -12,7 +12,7 @@ type Node struct {
 	CreatedAt             string  `json:"createdAt"`
 	OrganizationId        string  `json:"organizationId"`
 	UserId                string  `json:"userId"`
-	Tag                   string  `json:"tag"`
+	Identifier            string  `json:"identifier"`
 }
 
 type Account struct {

@@ -1,10 +1,10 @@
 // EFS filesystem
 resource "aws_efs_file_system" "workflow" {
-  creation_token = "efs-${var.account_id}-${var.env}-${var.tag}"
+  creation_token = "efs-${var.account_id}-${var.env}-${var.node_identifier}"
   encrypted = true
 
   tags = {
-    Name = "efs-${var.account_id}-${var.env}-${var.tag}"
+    Name = "efs-${var.account_id}-${var.env}-${var.node_identifier}"
   }
 }
 

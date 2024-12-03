@@ -5,11 +5,11 @@ resource "aws_kms_key" "ecs_cluster" {
 }
 
 resource "aws_cloudwatch_log_group" "ecs_cluster" {
-  name = "ecs-cluster-log-${var.account_id}-${var.env}-${var.tag}"
+  name = "ecs-cluster-log-${var.account_id}-${var.env}-${var.node_identifier}"
 }
 
 resource "aws_ecs_cluster" "workflow_cluster" {
-  name = "workflow-cluster-${var.account_id}-${var.env}-${var.tag}"
+  name = "workflow-cluster-${var.account_id}-${var.env}-${var.node_identifier}"
 
   configuration {
     execute_command_configuration {
@@ -26,7 +26,7 @@ resource "aws_ecs_cluster" "workflow_cluster" {
 
 // ECS Task definition - workflow manager
 resource "aws_ecs_task_definition" "workflow-manager" {
-  family                = "wm-${var.account_id}-${var.env}-${var.tag}"
+  family                = "wm-${var.account_id}-${var.env}-${var.node_identifier}"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = var.wm_cpu
@@ -36,7 +36,7 @@ resource "aws_ecs_task_definition" "workflow-manager" {
 
   container_definitions = jsonencode([
     {
-      name      = "wm-${var.account_id}-${var.env}-${var.tag}"
+      name      = "wm-${var.account_id}-${var.env}-${var.node_identifier}"
       image     = aws_ecr_repository.workflow-manager.repository_url
       environment: [
       {name: "SQS_URL", value: aws_sqs_queue.workflow_queue.id},
@@ -56,7 +56,7 @@ resource "aws_ecs_task_definition" "workflow-manager" {
       ]
       mountPoints = [
         {
-          sourceVolume = "wm-storage-${var.account_id}-${var.env}-${var.tag}"
+          sourceVolume = "wm-storage-${var.account_id}-${var.env}-${var.node_identifier}"
           containerPath = "/mnt/efs"
           readOnly = false
         }
@@ -64,7 +64,7 @@ resource "aws_ecs_task_definition" "workflow-manager" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group = "/ecs/wm/${var.account_id}-${var.env}-${var.tag}"
+          awslogs-group = "/ecs/wm/${var.account_id}-${var.env}-${var.node_identifier}"
           awslogs-region = var.region
           awslogs-stream-prefix = "ecs"
           awslogs-create-group = "true"
@@ -74,7 +74,7 @@ resource "aws_ecs_task_definition" "workflow-manager" {
   ])
 
   volume {
-    name = "wm-storage-${var.account_id}-${var.env}-${var.tag}"
+    name = "wm-storage-${var.account_id}-${var.env}-${var.node_identifier}"
 
     efs_volume_configuration {
       file_system_id          = aws_efs_file_system.workflow.id
@@ -84,7 +84,7 @@ resource "aws_ecs_task_definition" "workflow-manager" {
 }
 
 resource "aws_ecs_service" "workflow-manager" {
-  name            = "wm-${var.account_id}-${var.env}-${var.tag}"
+  name            = "wm-${var.account_id}-${var.env}-${var.node_identifier}"
   cluster         = aws_ecs_cluster.workflow_cluster.id
   task_definition = aws_ecs_task_definition.workflow-manager.arn
   launch_type = "FARGATE"

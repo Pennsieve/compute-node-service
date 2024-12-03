@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "iam_for_lambda" {
-  name               = "iam_for_lambda-${var.account_id}-${var.env}-${var.tag}"
+  name               = "iam_for_lambda-${var.account_id}-${var.env}-${var.node_identifier}"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
@@ -25,7 +25,7 @@ resource "aws_iam_role_policy_attachment" "gateway_lambda_policy" {
 }
 
 resource "aws_iam_policy" "lambda_iam_policy" {
-  name   = "lambda-iam-policy-${var.account_id}-${var.env}-${var.tag}"
+  name   = "lambda-iam-policy-${var.account_id}-${var.env}-${var.node_identifier}"
   path   = "/"
   policy = data.aws_iam_policy_document.iam_policy_document_gateway.json
 }
@@ -33,7 +33,7 @@ resource "aws_iam_policy" "lambda_iam_policy" {
 // Workflow manager
 // ECS task IAM role
 resource "aws_iam_role" "task_role_for_ecs_task" {
-  name               = "task_role_for_ecs_task-${var.account_id}-${var.env}-${var.tag}"
+  name               = "task_role_for_ecs_task-${var.account_id}-${var.env}-${var.node_identifier}"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_role_assume_role.json
   managed_policy_arns = [aws_iam_policy.efs_policy.arn,aws_iam_policy.ecs_run_task.arn,aws_iam_policy.ecs_get_secrets.arn,aws_iam_policy.s3_policy.arn]
 }

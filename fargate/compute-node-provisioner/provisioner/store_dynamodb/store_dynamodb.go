@@ -40,11 +40,11 @@ func (r *NodeDatabaseStore) Insert(ctx context.Context, node Node) error {
 	return nil
 }
 
-func (r *NodeDatabaseStore) Get(ctx context.Context, accountUuid string, environment string, tag string) ([]Node, error) {
+func (r *NodeDatabaseStore) Get(ctx context.Context, accountUuid string, environment string, identifier string) ([]Node, error) {
 	nodes := []Node{}
 	filt1 := expression.Name("accountUuid").Equal((expression.Value(accountUuid)))
 	filt2 := expression.Name("environment").Equal((expression.Value(environment)))
-	filt3 := expression.Name("tag").Equal((expression.Value(tag)))
+	filt3 := expression.Name("identifier").Equal((expression.Value(identifier)))
 	expr, err := expression.NewBuilder().WithFilter(filt1.And(filt2).And(filt3)).Build()
 	if err != nil {
 		return nodes, fmt.Errorf("error building expression: %w", err)
