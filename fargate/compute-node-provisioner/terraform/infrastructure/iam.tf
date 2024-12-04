@@ -39,7 +39,7 @@ resource "aws_iam_role" "task_role_for_ecs_task" {
 }
 
 resource "aws_iam_policy" "efs_policy" {
-  name = "ecs_task_role_efs_policy-${var.account_id}-${var.env}-${var.tag}"
+  name = "ecs_task_role_efs_policy-${var.account_id}-${var.env}-${var.node_identifier}"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -58,7 +58,7 @@ resource "aws_iam_policy" "efs_policy" {
 }
 
 resource "aws_iam_policy" "s3_policy" {
-  name = "ecs_task_role_s3_policy-${var.account_id}-${var.env}-${var.tag}"
+  name = "ecs_task_role_s3_policy-${var.account_id}-${var.env}-${var.node_identifier}"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -75,7 +75,7 @@ resource "aws_iam_policy" "s3_policy" {
 }
 
 resource "aws_iam_policy" "ecs_run_task" {
-  name = "ecs_task_role_run_task-${var.account_id}-${var.env}-${var.tag}"
+  name = "ecs_task_role_run_task-${var.account_id}-${var.env}-${var.node_identifier}"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -99,7 +99,7 @@ resource "aws_iam_policy" "ecs_run_task" {
 }
 
 resource "aws_iam_policy" "ecs_get_secrets" {
-  name = "ecs_task_role_ecs_get_secrets-${var.account_id}-${var.env}-${var.tag}"
+  name = "ecs_task_role_ecs_get_secrets-${var.account_id}-${var.env}-${var.node_identifier}"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -130,13 +130,13 @@ data "aws_iam_policy_document" "ecs_task_role_assume_role" {
 
 // ECS Task Execution IAM role
 resource "aws_iam_role" "execution_role_for_ecs_task" {
-  name               = "execution_role_for_ecs_task-${var.account_id}-${var.env}-${var.tag}"
+  name               = "execution_role_for_ecs_task-${var.account_id}-${var.env}-${var.node_identifier}"
   assume_role_policy = data.aws_iam_policy_document.ecs_execution_role_assume_role.json
   managed_policy_arns = [aws_iam_policy.ecs_execution_role_policy.arn]
 }
 
 resource "aws_iam_policy" "ecs_execution_role_policy" {
-  name = "ecs_task_execution_role_policy-${var.account_id}-${var.env}-${var.tag}"
+  name = "ecs_task_execution_role_policy-${var.account_id}-${var.env}-${var.node_identifier}"
 
   policy = jsonencode({
     Version = "2012-10-17"

@@ -16,6 +16,6 @@ variable "wm_memory" {
 variable "az" {
     type = list
 }
-variable "tag" {
+variable "node_identifier" {
     type = string 
 }
