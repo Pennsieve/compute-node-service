@@ -8,11 +8,11 @@ type Node struct {
 	EfsId                 string  `json:"efsId"`
 	QueueUrl              string  `json:"queueUrl"`
 	WorkflowManagerEcrUrl string  `json:"workflowManagerUrl"`
-	Env                   string  `json:"environment"`
 	Account               Account `json:"account"`
 	CreatedAt             string  `json:"createdAt"`
 	OrganizationId        string  `json:"organizationId"`
 	UserId                string  `json:"userId"`
+	Identifier            string  `json:"identifier"`
 }
 
 type Account struct {

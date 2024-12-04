@@ -53,7 +53,6 @@ func GetComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HTTPR
 		EfsId:                 computeNode.EfsId,
 		QueueUrl:              computeNode.QueueUrl,
 		WorkflowManagerEcrUrl: computeNode.WorkflowManagerEcrUrl,
-		Env:                   computeNode.Env,
 		Account: models.Account{
 			Uuid:        computeNode.AccountUuid,
 			AccountId:   computeNode.AccountId,

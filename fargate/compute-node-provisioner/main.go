@@ -27,6 +27,7 @@ func main() {
 	organizationId := os.Getenv("ORG_ID")
 	userId := os.Getenv("USER_ID")
 	env := os.Getenv("ENV")
+	nodeIdentifier := os.Getenv("NODE_IDENTIFIER")
 	nodeName := os.Getenv("NODE_NAME")
 	nodeDescription := os.Getenv("NODE_DESCRIPTION")
 
@@ -38,13 +39,13 @@ func main() {
 		log.Fatalf("LoadDefaultConfig: %v\n", err)
 	}
 
-	provisioner := aws.NewAWSProvisioner(cfg, accountId, action, env)
+	provisioner := aws.NewAWSProvisioner(cfg, accountId, action, env, nodeIdentifier)
 	err = provisioner.Run(ctx)
 	if err != nil {
 		log.Fatal("error running provisioner", err.Error())
 	}
 
-	// POST provisioning actions
+	// after provisioning actions
 	switch action {
 	case "CREATE":
 		// parse output file created after infrastructure creation
@@ -58,7 +59,7 @@ func main() {
 		dynamoDBClient := dynamodb.NewFromConfig(cfg)
 		computeNodesStore := store_dynamodb.NewNodeDatabaseStore(dynamoDBClient, computeNodesTable)
 
-		nodes, err := computeNodesStore.Get(ctx, accountUuid, env)
+		nodes, err := computeNodesStore.Get(ctx, accountUuid, env, nodeIdentifier)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -66,8 +67,8 @@ func main() {
 			log.Fatal("expected only one compute node entry")
 		}
 		if len(nodes) == 1 {
-			log.Fatalf("compute node with account uuid: %s, env: %s already exists",
-				nodes[0].AccountUuid, nodes[0].Env)
+			log.Fatalf("compute node with account uuid: %s, env: %s, identifier: %s already exists",
+				nodes[0].AccountUuid, nodes[0].Env, nodes[0].Identifier)
 
 		}
 
@@ -88,6 +89,7 @@ func main() {
 			OrganizationId:        organizationId,
 			UserId:                userId,
 			CreatedAt:             time.Now().UTC().String(),
+			Identifier:            nodeIdentifier,
 		}
 		err = computeNodesStore.Insert(ctx, store_nodes)
 		if err != nil {

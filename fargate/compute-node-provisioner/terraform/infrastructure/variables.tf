@@ -16,3 +16,6 @@ variable "wm_memory" {
 variable "az" {
     type = list
 }
+variable "node_identifier" {
+    type = string 
+}
