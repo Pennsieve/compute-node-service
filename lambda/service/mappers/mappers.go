@@ -17,7 +17,6 @@ func DynamoDBNodeToJsonNode(dynamoNodes []store_dynamodb.Node) []models.Node {
 			EfsId:                 c.EfsId,
 			QueueUrl:              c.QueueUrl,
 			WorkflowManagerEcrUrl: c.WorkflowManagerEcrUrl,
-			Env:                   c.Env,
 			Account: models.Account{
 				Uuid:        c.AccountUuid,
 				AccountId:   c.AccountId,
