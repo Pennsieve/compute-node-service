@@ -25,6 +25,7 @@ func DynamoDBNodeToJsonNode(dynamoNodes []store_dynamodb.Node) []models.Node {
 			CreatedAt:      c.CreatedAt,
 			OrganizationId: c.OrganizationId,
 			UserId:         c.UserId,
+			Identifier:     c.Identifier,
 		})
 	}
 
