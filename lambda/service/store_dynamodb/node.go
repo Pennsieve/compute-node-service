@@ -20,6 +20,7 @@ type Node struct {
 	CreatedAt             string `dynamodbav:"createdAt"`
 	OrganizationId        string `dynamodbav:"organizationId"`
 	UserId                string `dynamodbav:"userId"`
+	Identifier            string `dynamodbav:"identifier"`
 }
 
 func (i Node) GetKey() map[string]types.AttributeValue {
