@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "RUNNING IN ENVIRONMENT: $ENV"
-echo "NODE IDENTIFIER": $NODE_IDENTIFIER"
+echo "NODE IDENTIFIER: $NODE_IDENTIFIER"
 
 TERRAFORM_DIR="/usr/src/app/terraform/infrastructure"
 cd $TERRAFORM_DIR
