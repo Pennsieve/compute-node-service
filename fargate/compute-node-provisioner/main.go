@@ -41,6 +41,10 @@ func main() {
 	}
 
 	nodeIdentifier := fmt.Sprint(utils.GenerateHash(organizationId))
+	err = os.Setenv("NODE_IDENTIFIER", nodeIdentifier)
+	if err != nil {
+		log.Fatal("error setting node identifier", err.Error())
+	}
 	provisioner := aws.NewAWSProvisioner(cfg, accountId, action, env, nodeIdentifier)
 	err = provisioner.Run(ctx)
 	if err != nil {
