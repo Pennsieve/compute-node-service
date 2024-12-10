@@ -55,8 +55,6 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 	client := ecs.NewFromConfig(cfg)
 	log.Println("Initiating new Provisioning Fargate Task.")
 	envKey := "ENV"
-	nodeIdentifierKey := "NODE_IDENTIFIER"
-	nodeIdentifierValue := node.Identifier
 	accountIdKey := "ACCOUNT_ID"
 	accountIdValue := node.Account.AccountId
 	accountTypeKey := "ACCOUNT_TYPE"
@@ -94,10 +92,6 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 						{
 							Name:  &envKey,
 							Value: &envValue,
-						},
-						{
-							Name:  &nodeIdentifierKey,
-							Value: &nodeIdentifierValue,
 						},
 						{
 							Name:  &nodeNameKey,

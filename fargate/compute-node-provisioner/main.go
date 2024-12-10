@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -12,6 +13,7 @@ import (
 	aws "github.com/pennsieve/compute-node-service/compute-node-provisioner/provisioner/aws"
 	"github.com/pennsieve/compute-node-service/compute-node-provisioner/provisioner/parser"
 	"github.com/pennsieve/compute-node-service/compute-node-provisioner/provisioner/store_dynamodb"
+	"github.com/pennsieve/compute-node-service/compute-node-provisioner/provisioner/utils"
 )
 
 func main() {
@@ -27,7 +29,6 @@ func main() {
 	organizationId := os.Getenv("ORG_ID")
 	userId := os.Getenv("USER_ID")
 	env := os.Getenv("ENV")
-	nodeIdentifier := os.Getenv("NODE_IDENTIFIER")
 	nodeName := os.Getenv("NODE_NAME")
 	nodeDescription := os.Getenv("NODE_DESCRIPTION")
 
@@ -39,6 +40,7 @@ func main() {
 		log.Fatalf("LoadDefaultConfig: %v\n", err)
 	}
 
+	nodeIdentifier := fmt.Sprint(utils.GenerateHash(organizationId))
 	provisioner := aws.NewAWSProvisioner(cfg, accountId, action, env, nodeIdentifier)
 	err = provisioner.Run(ctx)
 	if err != nil {
