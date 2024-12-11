@@ -1,6 +1,7 @@
 #!/bin/sh
 
 echo "RUNNING IN ENVIRONMENT: $ENV"
+echo "NODE IDENTIFIER: $NODE_IDENTIFIER"
 
 TERRAFORM_DIR="/usr/src/app/terraform/infrastructure"
 cd $TERRAFORM_DIR
@@ -14,7 +15,7 @@ export AWS_SESSION_TOKEN=$4
 echo "Creating backend config"
   /bin/cat > $BACKEND_FILE <<EOL
 bucket  = "tfstate-$1"
-key     = "$ENV/terraform.tfstate"
+key     = "$ENV/$NODE_IDENTIFIER/terraform.tfstate"
 EOL
 
 echo "Creating tfvars config"
