@@ -16,7 +16,7 @@ export AWS_SESSION_TOKEN=$4
 echo "Creating backend config"
   /bin/cat > $BACKEND_FILE <<EOL
 bucket  = "tfstate-$1"
-key     = "$ENV/terraform.tfstate"
+key = "$ENV/$NODE_IDENTIFIER/terraform.tfstate"
 EOL
 
 echo "Creating tfvars config"
