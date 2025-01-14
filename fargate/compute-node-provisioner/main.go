@@ -87,7 +87,6 @@ func main() {
 			ComputeNodeGatewayUrl: outputs.ComputeNodeGatewayUrl.Value,
 			EfsId:                 outputs.EfsId.Value,
 			QueueUrl:              outputs.QueueUrl.Value,
-			WorkflowManagerEcrUrl: outputs.WorkflowManagerEcrUrl.Value,
 			Env:                   env,
 			AccountUuid:           accountUuid,
 			AccountId:             accountId,

@@ -13,10 +13,5 @@
     "sensitive": false,
     "type": "string",
     "value": "https://sqs.region.amazonaws.com/some-sql-url"
-  },
-  "workflow_manager_ecr_repository": {
-    "sensitive": false,
-    "type": "string",
-    "value": "some-account-url/workflow-manager"
   }
 }
