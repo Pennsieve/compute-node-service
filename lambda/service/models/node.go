@@ -7,7 +7,6 @@ type Node struct {
 	ComputeNodeGatewayUrl string  `json:"computeNodeGatewayUrl"`
 	EfsId                 string  `json:"efsId"`
 	QueueUrl              string  `json:"queueUrl"`
-	WorkflowManagerEcrUrl string  `json:"workflowManagerUrl"`
 	Account               Account `json:"account"`
 	CreatedAt             string  `json:"createdAt"`
 	OrganizationId        string  `json:"organizationId"`

@@ -12,7 +12,6 @@ type Node struct {
 	ComputeNodeGatewayUrl string `dynamodbav:"computeNodeGatewayUrl"`
 	EfsId                 string `dynamodbav:"efsId"`
 	QueueUrl              string `dynamodbav:"queueUrl"`
-	WorkflowManagerEcrUrl string `dynamodbav:"workflowManagerUrl"`
 	Env                   string `dynamodbav:"environment"`
 	AccountUuid           string `dynamodbav:"accountUuid"`
 	AccountId             string `dynamodbav:"accountId"`
