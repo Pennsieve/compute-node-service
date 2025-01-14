@@ -19,3 +19,7 @@ variable "az" {
 variable "node_identifier" {
     type = string 
 }
+
+variable "workflow_manager_image_url" {
+  default = "pennsieve/workflow-manager"
+}
