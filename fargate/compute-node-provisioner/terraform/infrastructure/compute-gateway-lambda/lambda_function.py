@@ -79,6 +79,10 @@ def lambda_handler(event, context):
 
                 response = s3_client.list_objects(Bucket=bucket_name, Prefix=prefix)
 
+                no_logs_found = {
+                    'statusCode': 404,
+                    'body': json.dumps({ 'messages': []})
+                }
                 if response.get('Contents'):
                     data = s3_client.get_object(Bucket=bucket_name, Key="{0}/processors.csv".format(prefix))
                     csv_bytes = data['Body'].read()
@@ -98,8 +102,7 @@ def lambda_handler(event, context):
                                 raise e
                         
                         messages[row[4]] = log_events['events']  
-                        
-                    # TODO: reduce duplicated returns    
+   
                     if messages and application_uuid:
                         if application_uuid in messages:
                             return {
@@ -107,22 +110,13 @@ def lambda_handler(event, context):
                                 'body': json.dumps({ 'messages': messages[application_uuid]})
                             }
                         else:
-                            return {
-                            'statusCode': 404,
-                            'body': json.dumps({ 'messages': []})
-                        }
+                            return no_logs_found
                     elif messages:    
                         return {
                             'statusCode': 200,
                             'body': json.dumps({ 'messages': messages})
                         }    
                     else:
-                        return {
-                            'statusCode': 404,
-                            'body': json.dumps({ 'messages': []})
-                        }
+                        return no_logs_found
                 else:
-                    return {
-                        'statusCode': 404,
-                        'body': json.dumps({ 'messages': []})
-                    }
+                    return no_logs_found
