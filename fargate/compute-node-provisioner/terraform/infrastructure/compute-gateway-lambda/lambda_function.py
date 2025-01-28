@@ -21,7 +21,7 @@ def lambda_handler(event, context):
         integration_id = json_body['integrationId']
 
         # cancel always defaults to false
-        # workflow manager will
+        # workflow manager will kill a process if cancel: true os sent
         cancel = False
         # Check if cancel was sent in body
         if 'cancel' in json_body:
