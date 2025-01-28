@@ -86,6 +86,14 @@ func main() {
 			log.Fatal("expected only one compute node entry")
 		}
 		if len(nodes) == 1 {
+			node := nodes[0]
+			node.WorkflowManagerTag = tagValue
+			log.Printf("updating compute node with account uuid: %s, env: %s, identifier: %s",
+				nodes[0].AccountUuid, nodes[0].Env, nodes[0].Identifier)
+			err = computeNodesStore.Insert(ctx, node)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
 			log.Fatalf("compute node with account uuid: %s, env: %s, identifier: %s already exists",
 				nodes[0].AccountUuid, nodes[0].Env, nodes[0].Identifier)
 
@@ -108,6 +116,7 @@ func main() {
 			UserId:                userId,
 			CreatedAt:             time.Now().UTC().String(),
 			Identifier:            nodeIdentifier,
+			WorkflowManagerTag:    tagValue,
 		}
 		err = computeNodesStore.Insert(ctx, store_nodes)
 		if err != nil {
