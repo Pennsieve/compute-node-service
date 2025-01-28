@@ -31,6 +31,7 @@ func main() {
 	env := os.Getenv("ENV")
 	nodeName := os.Getenv("NODE_NAME")
 	nodeDescription := os.Getenv("NODE_DESCRIPTION")
+	wmTag := os.Getenv("WM_TAG")
 
 	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
 
@@ -45,6 +46,18 @@ func main() {
 	if err != nil {
 		log.Fatal("error setting node identifier", err.Error())
 	}
+
+	var tagValue string
+	if wmTag == "" {
+		tagValue = "latest"
+	} else {
+		tagValue = wmTag
+	}
+	err = os.Setenv("WM_TAG", tagValue)
+	if err != nil {
+		log.Fatal("error setting workflow manager tag value", err.Error())
+	}
+
 	provisioner := aws.NewAWSProvisioner(cfg, accountId, action, env, nodeIdentifier)
 	err = provisioner.Run(ctx)
 	if err != nil {

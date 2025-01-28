@@ -20,6 +20,7 @@ type Node struct {
 	OrganizationId        string `dynamodbav:"organizationId"`
 	UserId                string `dynamodbav:"userId"`
 	Identifier            string `dynamodbav:"identifier"`
+	WorkflowManagerTag    string `dynamodbav:"workflowManagerTag"`
 }
 
 func (i Node) GetKey() map[string]types.AttributeValue {
