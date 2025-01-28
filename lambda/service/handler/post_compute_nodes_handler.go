@@ -73,6 +73,8 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 	nodeDescriptionKey := "NODE_DESCRIPTION"
 	nameValue := node.Name
 	descriptionValue := node.Description
+	wmTagKey := "WM_TAG"
+	wmTagValue := node.WorkflowManagerTag
 
 	runTaskIn := &ecs.RunTaskInput{
 		TaskDefinition: aws.String(TaskDefinitionArn),
@@ -128,6 +130,10 @@ func PostComputeNodesHandler(ctx context.Context, request events.APIGatewayV2HTT
 						{
 							Name:  &userIdKey,
 							Value: &userIdValue,
+						},
+						{
+							Name:  &wmTagKey,
+							Value: &wmTagValue,
 						},
 					},
 				},

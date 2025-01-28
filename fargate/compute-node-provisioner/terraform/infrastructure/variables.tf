@@ -23,3 +23,7 @@ variable "node_identifier" {
 variable "workflow_manager_image_url" {
   default = "pennsieve/workflow-manager"
 }
+
+variable "workflow_manager_image_tag" {
+  type = string
+}

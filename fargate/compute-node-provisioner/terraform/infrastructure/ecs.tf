@@ -37,7 +37,7 @@ resource "aws_ecs_task_definition" "workflow-manager" {
   container_definitions = jsonencode([
     {
       name      = "wm-${var.account_id}-${var.env}-${var.node_identifier}"
-      image     = var.workflow_manager_image_url
+      image     = "${var.workflow_manager_image_url}:${var.workflow_manager_image_tag}"
       environment: [
       {name: "SQS_URL", value: aws_sqs_queue.workflow_queue.id},
       { name: "SUBNET_IDS", value: local.subnet_ids},

@@ -12,6 +12,7 @@ type Node struct {
 	OrganizationId        string  `json:"organizationId"`
 	UserId                string  `json:"userId"`
 	Identifier            string  `json:"identifier"`
+	WorkflowManagerTag    string  `json:"workflowManagerTag"`
 }
 
 type Account struct {

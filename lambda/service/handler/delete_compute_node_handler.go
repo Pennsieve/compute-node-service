@@ -76,6 +76,8 @@ func DeleteComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HT
 	accountTypeValue := computeNode.AccountType
 	accountUuidKey := "UUID"
 	accountUuidValue := computeNode.AccountUuid
+	wmTagKey := "WM_TAG"
+	wmTagValue := computeNode.WorkflowManagerTag
 
 	runTaskIn := &ecs.RunTaskInput{
 		TaskDefinition: aws.String(TaskDefinitionArn),
@@ -127,6 +129,10 @@ func DeleteComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HT
 						{
 							Name:  &accountTypeKey,
 							Value: &accountTypeValue,
+						},
+						{
+							Name:  &wmTagKey,
+							Value: &wmTagValue,
 						},
 					},
 				},
