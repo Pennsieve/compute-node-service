@@ -88,8 +88,8 @@ func main() {
 		if len(nodes) == 1 {
 			node := nodes[0]
 			node.WorkflowManagerTag = tagValue
-			log.Printf("updating compute node with account uuid: %s, env: %s, identifier: %s",
-				nodes[0].AccountUuid, nodes[0].Env, nodes[0].Identifier)
+			log.Printf("updating compute node with account uuid: %s, env: %s, identifier: %s, tag: %s",
+				node.AccountUuid, node.Env, node.Identifier, node.WorkflowManagerTag)
 			err = computeNodesStore.Insert(ctx, node)
 			if err != nil {
 				log.Fatal(err.Error())
