@@ -20,6 +20,7 @@ type Node struct {
 	UserId                string `dynamodbav:"userId"`
 	CreatedAt             string `dynamodbav:"createdAt"`
 	Identifier            string `dynamodbav:"identifier"`
+	WorkflowManagerTag    string `dynamodbav:"workflowManagerTag"`
 }
 
 type DeleteNode struct {
