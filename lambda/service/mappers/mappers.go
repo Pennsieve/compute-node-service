@@ -21,10 +21,11 @@ func DynamoDBNodeToJsonNode(dynamoNodes []store_dynamodb.Node) []models.Node {
 				AccountId:   c.AccountId,
 				AccountType: c.AccountType,
 			},
-			CreatedAt:      c.CreatedAt,
-			OrganizationId: c.OrganizationId,
-			UserId:         c.UserId,
-			Identifier:     c.Identifier,
+			CreatedAt:          c.CreatedAt,
+			OrganizationId:     c.OrganizationId,
+			UserId:             c.UserId,
+			Identifier:         c.Identifier,
+			WorkflowManagerTag: c.WorkflowManagerTag,
 		})
 	}
 
