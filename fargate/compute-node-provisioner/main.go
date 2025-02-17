@@ -41,7 +41,7 @@ func main() {
 		log.Fatalf("LoadDefaultConfig: %v\n", err)
 	}
 
-	nodeIdentifier := fmt.Sprint(utils.GenerateHash(organizationId))
+	nodeIdentifier := fmt.Sprint(utils.GenerateHash(fmt.Sprintf("%s-%v", organizationId, accountUuid)))
 	err = os.Setenv("NODE_IDENTIFIER", nodeIdentifier)
 	if err != nil {
 		log.Fatal("error setting node identifier", err.Error())
