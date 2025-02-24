@@ -32,6 +32,7 @@ func main() {
 	nodeName := os.Getenv("NODE_NAME")
 	nodeDescription := os.Getenv("NODE_DESCRIPTION")
 	wmTag := os.Getenv("WM_TAG")
+	vizTag := os.Getenv("WM_TAG")
 
 	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
 
@@ -56,6 +57,16 @@ func main() {
 	err = os.Setenv("WM_TAG", tagValue)
 	if err != nil {
 		log.Fatal("error setting workflow manager tag value", err.Error())
+	}
+	var vizTagValue string
+	if vizTag == "" {
+		vizTagValue = "latest"
+	} else {
+		vizTagValue = wmTag
+	}
+	err = os.Setenv("VIZ_TAG", vizTagValue)
+	if err != nil {
+		log.Fatal("error setting visualization app tag value", err.Error())
 	}
 
 	provisioner := aws.NewAWSProvisioner(cfg, accountId, action, env, nodeIdentifier)
