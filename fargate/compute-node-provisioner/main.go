@@ -32,7 +32,7 @@ func main() {
 	nodeName := os.Getenv("NODE_NAME")
 	nodeDescription := os.Getenv("NODE_DESCRIPTION")
 	wmTag := os.Getenv("WM_TAG")
-	vizTag := os.Getenv("WM_TAG")
+	vizTag := os.Getenv("VIZ_TAG")
 
 	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
 
