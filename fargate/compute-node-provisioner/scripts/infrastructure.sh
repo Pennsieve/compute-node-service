@@ -29,6 +29,9 @@ wm_cpu = "${WM_CPU:-2048}"
 wm_memory = "${WM_MEMORY:-4096}"
 az = ["a", "b", "c", "d", "e", "f"]
 workflow_manager_image_tag = "$WM_TAG"
+viz_cpu = "${VIZ_CPU:-2048}"
+viz_memory = "${VIZ_MEMORY:-4096}"
+visualization_image_tag = "$VIZ_TAG"
 EOL
 
 echo "Running init and plan ..."
