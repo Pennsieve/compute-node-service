@@ -35,3 +35,9 @@ variable "viz_image_url" {
 variable "viz_image_tag" {
   type = string
 }
+variable "viz_cpu" {
+    type = number
+}
+variable "viz_memory" {
+    type = number
+}

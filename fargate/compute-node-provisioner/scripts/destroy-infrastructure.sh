@@ -30,7 +30,7 @@ az = ["a", "b", "c", "d", "e", "f"]
 workflow_manager_image_tag = "$WM_TAG"
 viz_cpu = "${VIZ_CPU:-2048}"
 viz_memory = "${VIZ_MEMORY:-4096}"
-visualization_image_tag = "$VIZ_TAG"
+viz_image_tag = "$VIZ_TAG"
 EOL
 
 cat $BACKEND_FILE
