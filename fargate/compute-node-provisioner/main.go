@@ -62,7 +62,7 @@ func main() {
 	if vizTag == "" {
 		vizTagValue = "latest"
 	} else {
-		vizTagValue = wmTag
+		vizTagValue = vizTag
 	}
 	err = os.Setenv("VIZ_TAG", vizTagValue)
 	if err != nil {
