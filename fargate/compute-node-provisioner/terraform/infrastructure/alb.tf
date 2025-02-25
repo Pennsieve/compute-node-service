@@ -12,7 +12,7 @@ resource "aws_lb" "viz-lb" {
   load_balancer_type = "application"
   subnets            = local.subnet_ids_list
 
-  security_groups = [aws_default_security_group.lb.id]
+  security_groups = [aws_default_security_group.viz.id]
 
   enable_deletion_protection = false
 }

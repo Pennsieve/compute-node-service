@@ -45,27 +45,6 @@ resource "aws_default_security_group" "viz" {
   }
 }
 
-// lb security group
-resource "aws_default_security_group" "lb" {
-  vpc_id = aws_default_vpc.default.id
-
-  ingress {
-    protocol  = "tcp"
-    self      = true
-    from_port = 80
-    to_port   = 80
-    cidr_blocks = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
 resource "aws_default_subnet" "default_az1" {
   availability_zone = "us-east-1${var.az[count.index]}"
 
