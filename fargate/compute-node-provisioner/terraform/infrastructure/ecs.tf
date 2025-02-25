@@ -115,7 +115,7 @@ resource "aws_ecs_task_definition" "visualization-service" {
       {name: "SQS_URL", value: aws_sqs_queue.workflow_queue.id},
       { name: "SUBNET_IDS", value: local.subnet_ids},
       { name: "CLUSTER_NAME", value: aws_ecs_cluster.workflow_cluster.name},
-      { name: "SECURITY_GROUP_ID", value: aws_default_security_group.default.id},
+      { name: "SECURITY_GROUP_ID", value: aws_default_security_group.viz.id},
       { name: "ENVIRONMENT", value: var.env},
       { name: "BASE_DIR", value: "/mnt/efs"},
       { name: "REGION", value: var.region},
