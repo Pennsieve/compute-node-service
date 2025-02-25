@@ -2,7 +2,7 @@ resource "aws_lb_target_group" "viz-tg" {
   name        = "viz-${var.node_identifier}-tg"
   target_type = "ip"
   port        = 80
-  protocol    = "TCP"
+  protocol    = "HTTP"
   vpc_id      = aws_default_vpc.default.id
 }
 
