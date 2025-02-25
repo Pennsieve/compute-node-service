@@ -171,13 +171,10 @@ resource "aws_ecs_service" "visualization-service" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.viz-tg.arn
-    container_name   = "visualization-app"
+    container_name   = "viz-${var.account_id}-${var.env}-${var.node_identifier}"
     container_port   = 8050
   }
 
-  depends_on = [
-    "aws_alb_target_group.viz-tg",
-  ]
 }
 
 resource "aws_lb_target_group" "viz-tg" {
