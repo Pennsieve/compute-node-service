@@ -166,7 +166,7 @@ resource "aws_ecs_service" "visualization-service" {
   network_configuration {
     subnets = local.subnet_ids_list
     assign_public_ip = true
-    security_groups = [aws_default_security_group.default.id]
+    security_groups = [aws_default_security_group.viz.id]
   }
 
   load_balancer {
