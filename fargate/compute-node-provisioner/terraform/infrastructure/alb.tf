@@ -29,7 +29,7 @@ resource "aws_lb_target_group" "viz-tg" {
   vpc_id      = aws_default_vpc.default.id
 
   health_check {
-    path = "/health
+    path = "/health"
   }
 }
 
