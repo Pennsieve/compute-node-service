@@ -26,9 +26,12 @@ resource "aws_default_security_group" "default" {
 
 // visualization service security group
 resource "aws_default_security_group" "viz" {
+  name = "visualization-service-sg"
   vpc_id = aws_default_vpc.default.id
 
+
   ingress {
+    description = "Allow Port"
     protocol  = "tcp"
     self      = true
     from_port = 80
