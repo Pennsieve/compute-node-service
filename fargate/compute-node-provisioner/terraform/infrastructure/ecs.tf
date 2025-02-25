@@ -177,7 +177,7 @@ resource "aws_ecs_service" "visualization-service" {
 }
 
 resource "aws_lb_target_group" "viz-tg" {
-  name        = "viz-${var.account_id}-${var.env}-${var.node_identifier}-tg"
+  name        = "viz-${var.node_identifier}-tg"
   target_type = "alb"
   port        = 80
   protocol    = "TCP"
