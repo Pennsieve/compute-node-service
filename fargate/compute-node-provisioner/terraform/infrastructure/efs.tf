@@ -12,13 +12,6 @@ resource "aws_efs_file_system" "workflow" {
 resource "aws_efs_mount_target" "mnt" {
   file_system_id = aws_efs_file_system.workflow.id
   subnet_id      = split(",", local.subnet_ids)[count.index]
-  security_groups = [aws_default_security_group.default.id]
-  count = 6
-}
-
-resource "aws_efs_mount_target" "mnt-viz" {
-  file_system_id = aws_efs_file_system.workflow.id
-  subnet_id      = split(",", local.subnet_ids)[count.index]
-  security_groups = [aws_default_security_group.viz.id]
+  security_groups = [aws_default_security_group.default.id, aws_default_security_group.viz.id]
   count = 6
 }
