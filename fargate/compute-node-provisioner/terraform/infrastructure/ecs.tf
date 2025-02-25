@@ -174,6 +174,10 @@ resource "aws_ecs_service" "visualization-service" {
     container_name   = "visualization-app"
     container_port   = 8050
   }
+
+  depends_on = [
+    "aws_alb_target_group.viz-tg",
+  ]
 }
 
 resource "aws_lb_target_group" "viz-tg" {
