@@ -179,7 +179,7 @@ resource "aws_ecs_service" "visualization-service" {
 
 resource "aws_lb_target_group" "viz-tg" {
   name        = "viz-${var.node_identifier}-tg"
-  target_type = "alb"
+  target_type = "ip"
   port        = 80
   protocol    = "TCP"
   vpc_id      = aws_default_vpc.default.id
