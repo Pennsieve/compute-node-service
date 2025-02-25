@@ -168,4 +168,18 @@ resource "aws_ecs_service" "visualization-service" {
     assign_public_ip = true
     security_groups = [aws_default_security_group.default.id]
   }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.viz-tg.arn
+    container_name   = "visualization-app"
+    container_port   = 8050
+  }
+}
+
+resource "aws_lb_target_group" "viz-tg" {
+  name        = "viz-${var.account_id}-${var.env}-${var.node_identifier}-tg"
+  target_type = "alb"
+  port        = 80
+  protocol    = "TCP"
+  vpc_id      = aws_default_vpc.default.id
 }
