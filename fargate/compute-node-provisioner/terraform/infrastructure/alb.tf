@@ -1,3 +1,27 @@
+// visualization service security group
+resource "aws_default_security_group" "viz" {
+  name = "visualization-service-sg"
+  vpc_id = aws_default_vpc.default.id
+
+
+  ingress {
+    description = "Allow Port"
+    protocol  = "tcp"
+    self      = true
+    from_port = 80
+    to_port   = 80
+    cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_lb_target_group" "viz-tg" {
   name        = "viz-${var.node_identifier}-tg"
   target_type = "ip"
@@ -18,12 +42,12 @@ resource "aws_lb" "viz-lb" {
 }
 
 resource "aws_lb_listener" "viz-lb-listener" {
-  load_balancer_arn = aws_lb.viz-lb.id
+  load_balancer_arn = aws_lb.viz-lb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.viz-tg.id
+    target_group_arn = aws_lb_target_group.viz-tg.arn
   }
 }
