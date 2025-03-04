@@ -175,4 +175,8 @@ resource "aws_ecs_service" "visualization-service" {
     container_port   = 8050
   }
 
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
 }
