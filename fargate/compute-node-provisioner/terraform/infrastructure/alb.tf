@@ -57,4 +57,7 @@ resource "aws_lb_listener" "viz-lb-listener" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.viz-tg.arn
   }
+
+  depends_on = [aws_lb_target_group.viz-tg]
+
 }
