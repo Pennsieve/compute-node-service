@@ -162,6 +162,7 @@ resource "aws_ecs_service" "visualization-service" {
   task_definition = aws_ecs_task_definition.visualization-service.arn
   launch_type = "FARGATE"
   desired_count = 0
+  depends_on = [aws_lb_target_group.viz-target-group]
 
   network_configuration {
     subnets = local.subnet_ids_list
@@ -170,7 +171,7 @@ resource "aws_ecs_service" "visualization-service" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.viz-tg.arn
+    target_group_arn = aws_lb_target_group.viz-target-group.arn
     container_name   = "viz-${var.account_id}-${var.env}-${var.node_identifier}"
     container_port   = 8050
   }
