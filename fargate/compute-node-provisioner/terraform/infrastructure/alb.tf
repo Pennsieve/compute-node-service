@@ -21,8 +21,8 @@ resource "aws_security_group" "viz" {
   }
 }
 
-resource "aws_lb_target_group" "viz-tg" {
-  name        = "viz-${var.node_identifier}-tg"
+resource "aws_lb_target_group" "viz-target-group" {
+  name_prefix = "viz-${var.node_identifier}-tg"
   target_type = "ip"
   port        = 8050
   protocol    = "HTTP"
@@ -30,6 +30,10 @@ resource "aws_lb_target_group" "viz-tg" {
 
   health_check {
     path = "/health"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
 }
@@ -52,9 +56,9 @@ resource "aws_lb_listener" "viz-lb-listener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.viz-tg.arn
+    target_group_arn = aws_lb_target_group.viz-target-group.arn
   }
 
-  depends_on = [aws_lb_target_group.viz-tg]
+  depends_on = [aws_lb_target_group.viz-target-group]
 
 }
