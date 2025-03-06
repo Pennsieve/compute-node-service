@@ -161,7 +161,7 @@ resource "aws_ecs_service" "visualization-service" {
   cluster         = aws_ecs_cluster.workflow_cluster.id
   task_definition = aws_ecs_task_definition.visualization-service.arn
   launch_type = "FARGATE"
-  desired_count = 0
+  desired_count = 1
   depends_on = [aws_lb_target_group.viz-target-group]
 
   network_configuration {
