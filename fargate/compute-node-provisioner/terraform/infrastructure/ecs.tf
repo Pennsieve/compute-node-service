@@ -119,6 +119,8 @@ resource "aws_ecs_task_definition" "visualization-service" {
       { name: "ENVIRONMENT", value: var.env},
       { name: "BASE_DIR", value: "/mnt/efs"},
       { name: "REGION", value: var.region},
+      { name: "TASK_DEFINITION_NAME", value: "viz-${var.account_id}-${var.env}-${var.node_identifier}"},
+      { name: "CONTAINER_NAME", value: "viz-${var.account_id}-${var.env}-${var.node_identifier}"},
       ],
       essential = true
       portMappings = [
