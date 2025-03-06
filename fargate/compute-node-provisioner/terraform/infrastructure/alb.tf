@@ -22,7 +22,7 @@ resource "aws_security_group" "viz" {
 }
 
 resource "aws_lb_target_group" "viz-target-group" {
-  name_prefix = "viz-${var.node_identifier}-tg"
+  name_prefix = "viz-tg"
   target_type = "ip"
   port        = 8050
   protocol    = "HTTP"
