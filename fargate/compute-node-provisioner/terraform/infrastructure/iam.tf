@@ -86,7 +86,7 @@ resource "aws_iam_policy" "ecs_run_task" {
           "ecs:RunTask",
           "ecs:ListTasks",
           "ecs:DescribeTaskDefinition",
-          "ecs:UpdateService"
+          "ecs:UpdateService",
           "iam:PassRole",
           "sqs:receivemessage",
           "sqs:deletemessage",
