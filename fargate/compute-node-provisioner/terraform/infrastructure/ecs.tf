@@ -46,6 +46,7 @@ resource "aws_ecs_task_definition" "workflow-manager" {
       { name: "VIZ_SECURITY_GROUP_ID", value: aws_security_group.viz.id},
       { name: "VIZ_TASK_DEFINITION_NAME", value: aws_ecs_task_definition.visualization-service.arn},
       { name: "VIZ_CONTAINER_NAME", value: aws_ecs_task_definition.visualization-service.family},
+      { name: "VIZ_URL", value: aws_lb.viz-lb.dns_name},
       { name: "ENVIRONMENT", value: var.env},
       { name: "BASE_DIR", value: "/mnt/efs"},
       { name: "REGION", value: var.region},
