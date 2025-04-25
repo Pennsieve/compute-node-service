@@ -27,17 +27,3 @@ variable "workflow_manager_image_url" {
 variable "workflow_manager_image_tag" {
   type = string
 }
-
-variable "viz_image_url" {
-  default = "pennsieve/visualization-app"
-}
-
-variable "viz_image_tag" {
-  type = string
-}
-variable "viz_cpu" {
-    type = number
-}
-variable "viz_memory" {
-    type = number
-}

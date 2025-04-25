@@ -15,9 +15,3 @@ output "efs_id" {
 
   value = aws_efs_file_system.workflow.id
 }
-
-output "visualization_service_url" {
-  description = "Visualization Service URL"
-
-  value = aws_lb.viz-lb.dns_name
-}
