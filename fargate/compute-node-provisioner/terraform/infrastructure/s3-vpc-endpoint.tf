@@ -1,16 +1,3 @@
-# data "aws_iam_policy_document" "s3_endpoint_policy" {
-#   statement {
-#     effect    = "Allow"
-#     actions   = ["s3:*"]
-#     resources = ["*"]
-    
-#     principals {
-#       type        = "*"
-#       identifiers = ["*"]
-#     }
-#   }
-# }
-
 # Retrieve all route tables associated with the default VPC
 data "aws_route_tables" "default_vpc_route_tables" {
   vpc_id = aws_default_vpc.default.id
