@@ -43,7 +43,6 @@ def lambda_handler(event, context):
         secret = get_secret_value_response['SecretString']
         d = json.loads(secret)
         api_key, api_secret = list(d.items())[0]
-        print(api_key, api_secret)
 
         message = {"integrationId": integration_id, "api_key": api_key, "api_secret" : api_secret}
         sqs = boto3_client('sqs')
