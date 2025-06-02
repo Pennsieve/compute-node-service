@@ -126,7 +126,14 @@ func (p *AWSProvisioner) GetPolicy(ctx context.Context) (*string, error) {
 func (p *AWSProvisioner) create(ctx context.Context) error {
 	log.Println("creating infrastructure ...")
 
-	_, err := p.GetPolicy(context.Background())
+	stsClient := sts.NewFromConfig(p.Config)
+	provisionerAccountId, err := stsClient.GetCallerIdentity(ctx,
+		&sts.GetCallerIdentityInput{})
+	if err != nil {
+		return err
+	}
+
+	_, err = p.GetPolicy(context.Background())
 	if err != nil {
 		if strings.Contains(err.Error(), "NoSuchEntity") {
 			log.Printf("no inline policy exists for account: %s, creating ...", p.AccountId)
@@ -177,7 +184,7 @@ func (p *AWSProvisioner) create(ctx context.Context) error {
 
 	// create infrastructure
 	cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/infrastructure.sh",
-		p.AccountId, creds.AccessKeyID, creds.SecretAccessKey, creds.SessionToken)
+		p.AccountId, creds.AccessKeyID, creds.SecretAccessKey, creds.SessionToken, *provisionerAccountId.Account)
 	out, err := cmd.Output()
 	if err != nil {
 		return err
@@ -190,12 +197,19 @@ func (p *AWSProvisioner) create(ctx context.Context) error {
 func (p *AWSProvisioner) delete(ctx context.Context) error {
 	fmt.Println("destroying infrastructure")
 
+	stsClient := sts.NewFromConfig(p.Config)
+	provisionerAccountId, err := stsClient.GetCallerIdentity(ctx,
+		&sts.GetCallerIdentityInput{})
+	if err != nil {
+		return err
+	}
+
 	creds, err := p.AssumeRole(ctx)
 	if err != nil {
 		return err
 	}
 	cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/destroy-infrastructure.sh",
-		p.AccountId, creds.AccessKeyID, creds.SecretAccessKey, creds.SessionToken)
+		p.AccountId, creds.AccessKeyID, creds.SecretAccessKey, creds.SessionToken, *provisionerAccountId.Account)
 	out, err := cmd.Output()
 	if err != nil {
 		return err

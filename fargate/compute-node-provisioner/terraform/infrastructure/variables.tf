@@ -27,3 +27,6 @@ variable "workflow_manager_image_url" {
 variable "workflow_manager_image_tag" {
   type = string
 }
+variable "provisioner_account_id" {
+    type = string 
+}
