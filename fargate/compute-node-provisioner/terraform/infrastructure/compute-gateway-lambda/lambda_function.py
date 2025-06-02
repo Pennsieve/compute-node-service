@@ -5,6 +5,7 @@ import json
 import base64
 import os
 import csv
+from datetime import datetime, timedelta
 
 def lambda_handler(event, context):
     print(event)
@@ -89,11 +90,14 @@ def lambda_handler(event, context):
                     rows = [row for row in csv.reader(csv_string.splitlines())]
                     log_events = {}
                     messages = {}
+                    end_time = datetime.now() - timedelta(minutes=1)
                     for row in rows[1:]:
                         try:
                             log_events = cloudwatch_client.get_log_events(
                             logGroupName=row[2],
-                            logStreamName=row[3])
+                            logStreamName=row[3],
+                            startFromHead=True,
+                            endTime=int(end_time.timestamp() * 1000))
                         except ClientError as e:
                             if e.response['Error']['Code'] == 'ResourceNotFoundException':
                                 log_events['events'] = []
