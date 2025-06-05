@@ -33,14 +33,3 @@ resource "aws_lambda_function_url" "compute_gateway" {
   function_name      = aws_lambda_function.compute_gateway.function_name
   authorization_type = "AWS_IAM"  # IAM authorization is required for account-specific access
 }
-
-resource "aws_lambda_permission" "compute_gateway_cross_account" {
-  statement_id  = "AllowCrossAccountInvocation"
-  action        = "lambda:InvokeFunctionUrl"
-  function_name = aws_lambda_function.compute_gateway.function_name
-  principal     = "*"  # Will be restricted by the condition below
-  
-  # This is the key part - restrict by source account
-  source_account = "${var.provisioner_account_id}"  # trusted AWS account
-  function_url_auth_type = "AWS_IAM"
-}
