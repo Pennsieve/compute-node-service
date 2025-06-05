@@ -42,4 +42,5 @@ resource "aws_lambda_permission" "compute_gateway_cross_account" {
   
   # This is the key part - restrict by source account
   source_account = "${var.provisioner_account_id}"  # trusted AWS account
+  function_url_auth_type = "AWS_IAM"
 }
