@@ -31,7 +31,7 @@ resource "aws_cloudwatch_log_group" "compute_gateway-lambda" {
 
 resource "aws_lambda_function_url" "compute_gateway" {
   function_name      = aws_lambda_function.compute_gateway.function_name
-  authorization_type = "NONE"
+  authorization_type = "AWS_IAM"  # IAM authorization is required for account-specific access
 }
 
 resource "aws_lambda_permission" "compute_gateway_cross_account" {
