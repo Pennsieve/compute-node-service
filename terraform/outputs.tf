@@ -13,3 +13,7 @@ output "service_lambda_function_name" {
 output "compute_nodes_table_name" {
   value = aws_dynamodb_table.compute_nodes_table.name
 }
+
+output "compute_nodes_table_arn" {
+  value = aws_dynamodb_table.compute_nodes_table.arn
+}
