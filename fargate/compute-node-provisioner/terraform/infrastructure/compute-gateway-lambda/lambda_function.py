@@ -20,6 +20,14 @@ def lambda_handler(event, context):
             event['isBase64Encoded'] = False
         json_body = json.loads(event['body'])
         integration_id = json_body['integrationId']
+
+        # cancel always defaults to false
+        # workflow manager will kill a process if cancel: true is sent
+        cancel = False
+        # Check if cancel was sent in body
+        if 'cancel' in json_body:
+            cancel = json_body['cancel']
+
         sqs_url = os.environ['SQS_URL']
 
         # gets api key secrets
@@ -45,7 +53,7 @@ def lambda_handler(event, context):
         d = json.loads(secret)
         api_key, api_secret = list(d.items())[0]
 
-        message = {"integrationId": integration_id, "api_key": api_key, "api_secret" : api_secret}
+        message = {"integrationId": integration_id, "api_key": api_key, "api_secret" : api_secret, "cancel": cancel}
         sqs = boto3_client('sqs')
         response = sqs.send_message(QueueUrl=sqs_url, MessageBody=json.dumps(message))
         
