@@ -1,17 +1,10 @@
 // ----------------------------------------------------------------------------
-// GPU ECS Cluster
-// ----------------------------------------------------------------------------
-
-resource "aws_ecs_cluster" "gpu_workflow_cluster" {
-  name = "workflow-cluster-gpu-${var.account_id}-${var.env}-${var.node_identifier}"
-}
-
-// ----------------------------------------------------------------------------
 // GPU Cluster Capacity Providers
+// Adds GPU capacity to the existing workflow cluster
 // ----------------------------------------------------------------------------
 
-resource "aws_ecs_cluster_capacity_providers" "gpu_workflow_cluster" {
-  cluster_name = aws_ecs_cluster.gpu_workflow_cluster.name
+resource "aws_ecs_cluster_capacity_providers" "workflow_cluster" {
+  cluster_name = aws_ecs_cluster.workflow_cluster.name
 
   capacity_providers = [
     "FARGATE",
@@ -55,9 +48,27 @@ resource "aws_autoscaling_group" "gpu_instances" {
   max_size            = 2
   desired_capacity    = 0
 
-  launch_template {
-    id      = aws_launch_template.gpu_instances.id
-    version = "$Latest"
+  mixed_instances_policy {
+    instances_distribution {
+      on_demand_percentage_above_base_capacity = 100
+    }
+
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.gpu_instances.id
+        version            = "$Latest"
+      }
+
+      override {
+        instance_type = "g4dn.2xlarge"  # 32 GB, 1 GPU
+      }
+      override {
+        instance_type = "g4dn.4xlarge"  # 64 GB, 1 GPU
+      }
+      override {
+        instance_type = "g4dn.8xlarge"  # 128 GB, 1 GPU
+      }
+    }
   }
 
   tag {
@@ -80,7 +91,7 @@ resource "aws_autoscaling_group" "gpu_instances" {
 resource "aws_launch_template" "gpu_instances" {
   name_prefix   = "gpu-ecs-${var.account_id}-${var.env}-${var.node_identifier}-"
   image_id      = data.aws_ssm_parameter.ecs_gpu_ami.value
-  instance_type = "g4dn.xlarge"
+  instance_type = "g4dn.2xlarge"
 
   iam_instance_profile {
     name = aws_iam_instance_profile.gpu_ecs_instance.name
@@ -88,9 +99,20 @@ resource "aws_launch_template" "gpu_instances" {
 
   vpc_security_group_ids = [aws_default_security_group.default.id]
 
+  block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      volume_size           = 100
+      volume_type           = "gp3"
+      delete_on_termination = true
+      encrypted             = true
+    }
+  }
+
   user_data = base64encode(<<-EOF
     #!/bin/bash
-    echo ECS_CLUSTER=${aws_ecs_cluster.gpu_workflow_cluster.name} >> /etc/ecs/ecs.config
+    echo ECS_CLUSTER=${aws_ecs_cluster.workflow_cluster.name} >> /etc/ecs/ecs.config
     echo ECS_ENABLE_GPU_SUPPORT=true >> /etc/ecs/ecs.config
   EOF
   )
