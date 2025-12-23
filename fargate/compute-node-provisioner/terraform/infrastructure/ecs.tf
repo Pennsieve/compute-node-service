@@ -42,6 +42,7 @@ resource "aws_ecs_task_definition" "workflow-manager" {
       { name: "SQS_URL", value: aws_sqs_queue.workflow_queue.id},
       { name: "SUBNET_IDS", value: local.subnet_ids},
       { name: "CLUSTER_NAME", value: aws_ecs_cluster.workflow_cluster.name},
+      { name: "GPU_CAPACITY_PROVIDER", value: aws_ecs_capacity_provider.gpu_managed_instances.name},
       { name: "SECURITY_GROUP_ID", value: aws_default_security_group.default.id},
       { name: "ENVIRONMENT", value: var.env},
       { name: "BASE_DIR", value: "/mnt/efs"},
