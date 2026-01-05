@@ -38,3 +38,7 @@ fargate/compute-node-provisioner/terraform/infrastructure/compute-gateway-lambda
 fargate/compute-node-provisioner/terraform/infrastructure/tfplan
 fargate/compute-node-provisioner/terraform/infrastructure/.terraform/providers/registry.terraform.io/hashicorp/aws/5.47.0/linux_arm64/terraform-provider-aws_v5.47.0_x5
 fargate/compute-node-provisioner/terraform/infrastructure/outputs.json
+fargate/compute-node-provisioner/terraform/infrastructure/.terraform/providers/registry.terraform.io/hashicorp/archive/2.7.1/darwin_arm64/LICENSE.txt
+fargate/compute-node-provisioner/terraform/infrastructure/.terraform/providers/registry.terraform.io/hashicorp/archive/2.7.1/darwin_arm64/terraform-provider-archive_v2.7.1_x5
+fargate/compute-node-provisioner/terraform/infrastructure/.terraform/providers/registry.terraform.io/hashicorp/aws/6.23.0/darwin_arm64/LICENSE.txt
+fargate/compute-node-provisioner/terraform/infrastructure/.terraform/providers/registry.terraform.io/hashicorp/aws/6.23.0/darwin_arm64/terraform-provider-aws_v6.23.0_x5
