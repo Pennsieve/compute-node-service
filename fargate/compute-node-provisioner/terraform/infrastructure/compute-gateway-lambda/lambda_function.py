@@ -14,12 +14,20 @@ def lambda_handler(event, context):
     environment = os.environ['ENV']
 
     if http_method == 'POST':
+        # Retrieve tokens from headers
+        headers = event.get('headers', {})
+        authorization = headers.get('authorization', '')
+        refresh_token = headers.get('x-refresh-token', '')
+
+        # Strip "Bearer " prefix from authorization header
+        session_token = authorization.replace('Bearer ', '', 1) if authorization.startswith('Bearer ') else authorization
+
         if event['isBase64Encoded'] == True:
             body = base64.b64decode(event['body']).decode('utf-8')
             event['body'] = body
             event['isBase64Encoded'] = False
         json_body = json.loads(event['body'])
-        integration_id = json_body['integrationId']
+        integration_id = json_body.get('integrationId', None)
         sqs_url = os.environ['SQS_URL']
 
         # gets api key secrets
@@ -45,7 +53,7 @@ def lambda_handler(event, context):
         d = json.loads(secret)
         api_key, api_secret = list(d.items())[0]
 
-        message = {"integrationId": integration_id, "api_key": api_key, "api_secret" : api_secret}
+        message = {"integrationId": integration_id, "api_key": api_key, "api_secret" : api_secret, "session_token": session_token, "refresh_token": refresh_token}
         sqs = boto3_client('sqs')
         response = sqs.send_message(QueueUrl=sqs_url, MessageBody=json.dumps(message))
         
