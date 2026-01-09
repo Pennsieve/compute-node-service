@@ -6,6 +6,34 @@ import base64
 import os
 import csv
 from datetime import datetime, timedelta
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
+
+
+def get_user_from_session_token(session_token, environment):
+    """
+    Retrieve user information from the Pennsieve API using a session token.
+    Returns user dict on success, None on failure.
+    """
+    if environment == 'prod':
+        api_base = 'https://api.pennsieve.io'
+    else:
+        api_base = 'https://api.pennsieve.net'
+
+    request = Request(
+        f'{api_base}/user',
+        headers={'Authorization': f'Bearer {session_token}'}
+    )
+
+    try:
+        with urlopen(request, timeout=10) as response:
+            return json.loads(response.read().decode('utf-8'))
+    except HTTPError as e:
+        print(f"Failed to get user from session token: HTTP {e.code}")
+        return None
+    except URLError as e:
+        print(f"Failed to get user from session token: {e.reason}")
+        return None
 
 def lambda_handler(event, context):
     print(event)
@@ -15,12 +43,31 @@ def lambda_handler(event, context):
 
     if http_method == 'POST':
         # Retrieve tokens from headers
+        # Note: Using x-session-token instead of Authorization because AWS SigV4 signing
+        # overwrites the Authorization header with the AWS signature
         headers = event.get('headers', {})
-        authorization = headers.get('authorization', '')
+        session_token_header = headers.get('x-session-token', '')
         refresh_token = headers.get('x-refresh-token', '')
 
-        # Strip "Bearer " prefix from authorization header
-        session_token = authorization.replace('Bearer ', '', 1) if authorization.startswith('Bearer ') else authorization
+        # Strip "Bearer " prefix from session token header (case-insensitive)
+        if session_token_header.lower().startswith('bearer '):
+            session_token = session_token_header[7:]  # Remove first 7 chars ("Bearer " or "bearer ")
+        else:
+            session_token = session_token_header
+
+        # Debug: log token presence (not the actual token for security)
+        print(f"X-Session-Token header present: {bool(session_token_header)}, length: {len(session_token_header)}")
+        print(f"Session token extracted, length: {len(session_token)}")
+
+        # Get user info from session token
+        user_info = get_user_from_session_token(session_token, environment)
+        if user_info:
+            print(f"User identified: {user_info.get('firstName', '')} {user_info.get('lastName', '')} ({user_info.get('email', 'unknown')})")
+            print(f"User ID: {user_info.get('id', 'unknown')}")
+            print(f"Organization: {user_info.get('preferredOrganization', 'unknown')}")
+            print(f"Is integration user: {user_info.get('isIntegrationUser', False)}")
+        else:
+            print("Warning: Could not identify user from session token")
 
         if event['isBase64Encoded'] == True:
             body = base64.b64decode(event['body']).decode('utf-8')
