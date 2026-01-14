@@ -92,13 +92,18 @@ def lambda_handler(event, context):
             get_secret_value_response = client.get_secret_value(
                 SecretId=secret_name
             )
+            # Decrypts secret using the associated KMS key.
+            secret = get_secret_value_response['SecretString']
+            if secret:
+                d = json.loads(secret)                                                        
+                if d:                                                                         
+                    api_key, api_secret = list(d.items())[0]                                  
+                else:                                                                         
+                    api_key, api_secret = "", ""
+            else:
+                api_key, api_secret = "", ""
         except ClientError as e:
-            raise e
-
-        # Decrypts secret using the associated KMS key.
-        secret = get_secret_value_response['SecretString']
-        d = json.loads(secret)
-        api_key, api_secret = list(d.items())[0]
+            print(e)
 
         message = {"integrationId": integration_id, "api_key": api_key, "api_secret" : api_secret, "session_token": session_token, "refresh_token": refresh_token}
         sqs = boto3_client('sqs')
