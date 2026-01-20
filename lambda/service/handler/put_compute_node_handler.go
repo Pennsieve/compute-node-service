@@ -107,6 +107,12 @@ func PutComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HTTPR
 		wmMemoryValue = "4096" // default value
 	}
 
+	authTypeKey := "AUTH_TYPE"
+	authTypeValue := updateRequest.AuthorizationType
+	if authTypeValue == "" {
+		authTypeValue = "NONE" // default value
+	}
+
 	runTaskIn := &ecs.RunTaskInput{
 		TaskDefinition: aws.String(TaskDefinitionArn),
 		Cluster:        aws.String(cluster),
@@ -169,6 +175,10 @@ func PutComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HTTPR
 						{
 							Name:  &wmMemoryKey,
 							Value: &wmMemoryValue,
+						},
+						{
+							Name:  &authTypeKey,
+							Value: &authTypeValue,
 						},
 					},
 				},

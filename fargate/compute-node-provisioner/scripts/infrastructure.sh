@@ -30,6 +30,7 @@ wm_memory = "${WM_MEMORY:-4096}"
 az = ["a", "b", "c", "d", "e", "f"]
 workflow_manager_image_tag = "$WM_TAG"
 provisioner_account_id = "$5"
+authorization_type = "${AUTH_TYPE:-NONE}"
 EOL
 
 echo "Running init and plan ..."

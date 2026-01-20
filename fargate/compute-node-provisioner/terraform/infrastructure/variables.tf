@@ -28,5 +28,11 @@ variable "workflow_manager_image_tag" {
   type = string
 }
 variable "provisioner_account_id" {
-    type = string 
+    type = string
+}
+
+variable "authorization_type" {
+    type    = string
+    default = "NONE"
+    description = "Authorization type for Lambda function URL (NONE or AWS_IAM)"
 }

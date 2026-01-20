@@ -34,6 +34,7 @@ func main() {
 	wmTag := os.Getenv("WM_TAG")
 	wmCpu := os.Getenv("WM_CPU")
 	wmMemory := os.Getenv("WM_MEMORY")
+	authType := os.Getenv("AUTH_TYPE")
 
 	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
 
@@ -72,6 +73,15 @@ func main() {
 		if err != nil {
 			log.Fatal("error setting WM_MEMORY value", err.Error())
 		}
+	}
+
+	// Set AUTH_TYPE if provided (used by infrastructure.sh for Lambda function URL authorization)
+	if authType == "" {
+		authType = "NONE" // default value
+	}
+	err = os.Setenv("AUTH_TYPE", authType)
+	if err != nil {
+		log.Fatal("error setting AUTH_TYPE value", err.Error())
 	}
 
 	provisioner := aws.NewAWSProvisioner(cfg, accountId, action, env, nodeIdentifier)
