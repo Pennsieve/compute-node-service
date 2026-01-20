@@ -96,14 +96,14 @@ func PutComputeNodeHandler(ctx context.Context, request events.APIGatewayV2HTTPR
 	}
 
 	wmCpuKey := "WM_CPU"
-	wmCpuValue := strconv.Itoa(updateRequest.WmCpu)
-	if updateRequest.WmCpu == 0 {
+	wmCpuValue := strconv.Itoa(updateRequest.WorkflowManagerCpu)
+	if updateRequest.WorkflowManagerCpu == 0 {
 		wmCpuValue = "2048" // default value
 	}
 
 	wmMemoryKey := "WM_MEMORY"
-	wmMemoryValue := strconv.Itoa(updateRequest.WmMemory)
-	if updateRequest.WmMemory == 0 {
+	wmMemoryValue := strconv.Itoa(updateRequest.WorkflowManagerMemory)
+	if updateRequest.WorkflowManagerMemory == 0 {
 		wmMemoryValue = "4096" // default value
 	}
 

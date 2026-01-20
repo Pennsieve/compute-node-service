@@ -26,8 +26,8 @@ type NodeResponse struct {
 }
 
 type NodeUpdateRequest struct {
-	WorkflowManagerTag string `json:"workflowManagerTag"`
-	WmCpu              int    `json:"wmCpu"`
-	WmMemory           int    `json:"wmMemory"`
-	AuthorizationType  string `json:"authorizationType"` // "NONE" or "AWS_IAM"
+	WorkflowManagerTag    string `json:"workflowManagerTag"`
+	WorkflowManagerCpu    int    `json:"workflowManagerCpu"`
+	WorkflowManagerMemory int    `json:"workflowManagerMemory"`
+	AuthorizationType     string `json:"authorizationType"` // "NONE" or "AWS_IAM"
 }
