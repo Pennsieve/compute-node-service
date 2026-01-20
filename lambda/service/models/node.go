@@ -24,3 +24,9 @@ type Account struct {
 type NodeResponse struct {
 	Message string `json:"message"`
 }
+
+type NodeUpdateRequest struct {
+	WorkflowManagerTag string `json:"workflowManagerTag"`
+	WmCpu              int    `json:"wmCpu"`
+	WmMemory           int    `json:"wmMemory"`
+}

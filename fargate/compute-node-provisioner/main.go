@@ -32,6 +32,8 @@ func main() {
 	nodeName := os.Getenv("NODE_NAME")
 	nodeDescription := os.Getenv("NODE_DESCRIPTION")
 	wmTag := os.Getenv("WM_TAG")
+	wmCpu := os.Getenv("WM_CPU")
+	wmMemory := os.Getenv("WM_MEMORY")
 
 	computeNodesTable := os.Getenv("COMPUTE_NODES_TABLE")
 
@@ -56,6 +58,20 @@ func main() {
 	err = os.Setenv("WM_TAG", tagValue)
 	if err != nil {
 		log.Fatal("error setting workflow manager tag value", err.Error())
+	}
+
+	// Set WM_CPU and WM_MEMORY if provided (used by infrastructure.sh)
+	if wmCpu != "" {
+		err = os.Setenv("WM_CPU", wmCpu)
+		if err != nil {
+			log.Fatal("error setting WM_CPU value", err.Error())
+		}
+	}
+	if wmMemory != "" {
+		err = os.Setenv("WM_MEMORY", wmMemory)
+		if err != nil {
+			log.Fatal("error setting WM_MEMORY value", err.Error())
+		}
 	}
 
 	provisioner := aws.NewAWSProvisioner(cfg, accountId, action, env, nodeIdentifier)
@@ -119,6 +135,26 @@ func main() {
 			WorkflowManagerTag:    tagValue,
 		}
 		err = computeNodesStore.Insert(ctx, store_nodes)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	case "UPDATE":
+		log.Println("Updating", computeNodeId)
+		dynamoDBClient := dynamodb.NewFromConfig(cfg)
+		computeNodesStore := store_dynamodb.NewNodeDatabaseStore(dynamoDBClient, computeNodesTable)
+
+		// Fetch existing node
+		node, err := computeNodesStore.GetById(ctx, computeNodeId)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		// Update the workflow manager tag
+		node.WorkflowManagerTag = tagValue
+		log.Printf("updating compute node %s with tag: %s", computeNodeId, tagValue)
+
+		// Insert performs an upsert in DynamoDB (PutItem), so it works for updates
+		err = computeNodesStore.Insert(ctx, node)
 		if err != nil {
 			log.Fatal(err.Error())
 		}

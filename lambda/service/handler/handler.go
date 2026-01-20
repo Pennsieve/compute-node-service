@@ -32,6 +32,7 @@ func ComputeNodeServiceHandler(ctx context.Context, request events.APIGatewayV2H
 	router.POST("/compute-nodes", PostComputeNodesHandler)
 	router.GET("/compute-nodes", GetComputesNodesHandler)
 	router.GET("/compute-nodes/{id}", GetComputeNodeHandler)
+	router.PUT("/compute-nodes/{id}", PutComputeNodeHandler)
 	router.DELETE("/compute-nodes/{id}", DeleteComputeNodeHandler)
 
 	return router.Start(ctx, request)

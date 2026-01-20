@@ -37,6 +37,8 @@ func (p *AWSProvisioner) Run(ctx context.Context) error {
 	switch p.Action {
 	case "CREATE":
 		return p.create(ctx)
+	case "UPDATE":
+		return p.update(ctx)
 	case "DELETE":
 		return p.delete(ctx)
 	default:
@@ -209,6 +211,32 @@ func (p *AWSProvisioner) delete(ctx context.Context) error {
 		return err
 	}
 	cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/destroy-infrastructure.sh",
+		p.AccountId, creds.AccessKeyID, creds.SecretAccessKey, creds.SessionToken, *provisionerAccountId.Account)
+	out, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(out))
+
+	return nil
+}
+
+func (p *AWSProvisioner) update(ctx context.Context) error {
+	log.Println("updating infrastructure ...")
+
+	stsClient := sts.NewFromConfig(p.Config)
+	provisionerAccountId, err := stsClient.GetCallerIdentity(ctx,
+		&sts.GetCallerIdentityInput{})
+	if err != nil {
+		return err
+	}
+
+	creds, err := p.AssumeRole(ctx)
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command("/bin/sh", "/usr/src/app/scripts/update-infrastructure.sh",
 		p.AccountId, creds.AccessKeyID, creds.SecretAccessKey, creds.SessionToken, *provisionerAccountId.Account)
 	out, err := cmd.Output()
 	if err != nil {
