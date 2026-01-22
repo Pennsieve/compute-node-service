@@ -13,6 +13,7 @@ import (
 type DynamoDBStore interface {
 	Insert(context.Context, Node) error
 	Get(context.Context, string, string, string) ([]Node, error)
+	GetById(context.Context, string) (Node, error)
 	Delete(context.Context, string) error
 }
 
@@ -67,6 +68,33 @@ func (r *NodeDatabaseStore) Get(ctx context.Context, accountUuid string, environ
 	}
 
 	return nodes, nil
+}
+
+func (r *NodeDatabaseStore) GetById(ctx context.Context, uuid string) (Node, error) {
+	node := Node{}
+	key, err := attributevalue.MarshalMap(DeleteNode{Uuid: uuid})
+	if err != nil {
+		return node, fmt.Errorf("error marshaling key: %w", err)
+	}
+
+	response, err := r.DB.GetItem(ctx, &dynamodb.GetItemInput{
+		Key:       key,
+		TableName: aws.String(r.TableName),
+	})
+	if err != nil {
+		return node, fmt.Errorf("error getting node: %w", err)
+	}
+
+	if response.Item == nil {
+		return node, fmt.Errorf("node not found: %s", uuid)
+	}
+
+	err = attributevalue.UnmarshalMap(response.Item, &node)
+	if err != nil {
+		return node, fmt.Errorf("error unmarshaling node: %w", err)
+	}
+
+	return node, nil
 }
 
 func (r *NodeDatabaseStore) Delete(ctx context.Context, computeNodeId string) error {

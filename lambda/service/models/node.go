@@ -24,3 +24,10 @@ type Account struct {
 type NodeResponse struct {
 	Message string `json:"message"`
 }
+
+type NodeUpdateRequest struct {
+	WorkflowManagerTag    string `json:"workflowManagerTag"`
+	WorkflowManagerCpu    int    `json:"workflowManagerCpu"`
+	WorkflowManagerMemory int    `json:"workflowManagerMemory"`
+	AuthorizationType     string `json:"authorizationType"` // "NONE" or "AWS_IAM"
+}

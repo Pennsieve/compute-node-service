@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "RUNNING IN ENVIRONMENT: $ENV"
+echo "UPDATING INFRASTRUCTURE IN ENVIRONMENT: $ENV"
 echo "NODE IDENTIFIER: $NODE_IDENTIFIER"
 
 TERRAFORM_DIR="/usr/src/app/terraform/infrastructure"
@@ -33,15 +33,15 @@ provisioner_account_id = "$5"
 authorization_type = "${AUTH_TYPE:-NONE}"
 EOL
 
-echo "Running init and plan ..."
+echo "Running init and plan for update ..."
 export TF_LOG_PATH="error.log"
 export TF_LOG=TRACE
 terraform init -force-copy -backend-config=$BACKEND_FILE
 terraform plan -out=tfplan -var-file=$VAR_FILE
 
-echo "Running apply ..."
+echo "Running apply for update ..."
 terraform apply tfplan
 terraform output -json > $OUTPUT_FILE
 
 cat error.log
-echo "DONE RUNNING IN ENVIRONMENT: $ENV"
+echo "DONE UPDATING INFRASTRUCTURE IN ENVIRONMENT: $ENV"
